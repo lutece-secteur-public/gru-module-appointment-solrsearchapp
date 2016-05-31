@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+    <name>appointment-solrsearchapp</name>
+    <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
+    <version>1.0.0-SNAPSHOT</version>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
+    <description>module.appointment.solrsearchapp.description</description>
+    <provider>module.appointment.solrsearchapp.provider</provider>
+    <provider-url>http://dev.lutece.paris.fr</provider-url>
+    <icon-url>images/admin/skin/plugins/appointment/appointment.png</icon-url>
+    <copyright>Copyright (c) 2016 Mairie de Paris</copyright>
+    
+    <applications>
+        <application>
+            <application-id>appointmentsearch</application-id>
+            <application-class>fr.paris.lutece.plugins.appointment.modules.solrsearchapp.web.AppointmentSearchApp</application-class>
+        </application>
+    </applications>
+    <css-stylesheets>
+        <css-stylesheets-scope>xpage</css-stylesheets-scope>
+        <css-stylesheet>../../js/plugins/leaflet/leaflet/leaflet.css</css-stylesheet>
+        <css-stylesheet>../../js/plugins/leaflet/leaflet/MarkerCluster.css</css-stylesheet>
+        <css-stylesheet>../../js/plugins/leaflet/leaflet/MarkerCluster.Default.css</css-stylesheet>
+        <css-stylesheet>appointment/modules/solrsearchapp/leaflet-appointmentsearch.css</css-stylesheet>
+    </css-stylesheets>
+    <javascript-files>
+        <javascript-files-scope>xpage</javascript-files-scope>
+        <javascript-file>leaflet/leaflet/leaflet.js</javascript-file>
+        <javascript-file>leaflet/leaflet/leaflet.markercluster.js</javascript-file>
+        <javascript-file>leaflet/esri/esri-leaflet.js</javascript-file>
+        <javascript-file>appointment/modules/solrsearchapp/leaflet-appointmentsearch.js</javascript-file>
+    </javascript-files>
+</plug-in>

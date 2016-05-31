@@ -1,0 +1,127 @@
+<#assign items_time= [
+    { "code":"06:00", "name":"06h00"},
+    { "code":"09:00", "name":"09h00"},
+    { "code":"12:00", "name":"12h00"},
+    { "code":"15:00", "name":"15h00"},
+    { "code":"18:00", "name":"18h00"},
+    { "code":"21:00", "name":"21h00"}
+    ]>
+<div class="row">
+    <div class="col-sm-12">
+        <form name="search" method="post" action="jsp/site/Portal.jsp">
+            <input name="page" value="appointmentsearch" type="hidden">
+            <div class="row">
+                <div class="col-sm-2"><@combo name="site" default_value=site! items=items_sites /></div>
+                <div class="col-sm-2"><@combo name="category" default_value=category! items=items_categories /></div>
+                <div class="col-sm-2"><@combo name="form" default_value=form! items=items_forms /></div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <div class="row">
+                        <div class="col-sm-6">	
+                            <label for="from_date" class="sr-only">Du</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">Du</span>
+                                <input class="form-control" id="from_date" name="from_date" type="text" value="${from_date!}">
+                            </div>	
+                        </div>	
+                        <div class="col-sm-6"><@combo name="from_time" default_value=from_time! items=items_time /></div>
+                        <div class="clearfix"></div>
+                        <div class="col-sm-6">
+                            <label for="to_date" class="sr-only">Au</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">Au</span>
+                                <input class="form-control" id="to_date" name="to_date" type="text" value="${to_date!}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6"><@combo name="to_time" default_value=to_time! items=items_time /></div>
+<script src="js/jquery/plugins/ui/jquery-ui.min.js"></script>
+<script src="js/jquery/plugins/ui/ui.datepicker-fr.js"></script>
+<script>
+    $( "#from_date" ).datepicker({
+		regional: "fr",	
+		defaultDate: "+1w",
+		changeMonth: true,
+		changeYear: true,
+		onClose: function( selectedDate ) {
+			$( "#to_date" ).datepicker( "option", "minDate", selectedDate );
+      }
+    }).datepicker(  );
+    $( "#to_date" ).datepicker({
+	  regional: "fr",	
+      defaultDate: "+1w",
+      changeMonth: true,
+	  changeYear: true,
+      onClose: function( selectedDate ) {
+        $( "#from_date" ).datepicker( "option", "maxDate", selectedDate );
+      }
+    });
+</script>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1"><input type="submit" class="btn btn-primary" name="action_search" value="search"></div>
+                <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="clear"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-5 col-sm-offset-1">
+        <#if (results.values)??>
+        <#list results.values as groupcommand>
+        <div class="row">
+            <div class="col-sm-12">
+                <#list groupcommand.values as group>
+                <h3>${group.result.list[0].title}</h3>
+                <#if (group.result.list[0].appointmentslot_address_text)??><p>Addresse: ${group.result.list[0].appointmentslot_address_text}</p></#if>
+                <p>Premiers horaires:</p>
+                <#list group.result.list as slot>
+                <div class="row">
+                    <div class="col-sm-12">${slot.date?datetime} <a href="${slot.url}">s'inscrire</a></div>
+                </div>
+                </#list>
+                <p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s)...</p>
+                <a href="${group.result.list[0].url_form_string}">Voir le calendrier de tous les horaires</a>
+                <p>Nombre de places libres: ${placesCount["slot_nb_free_places_long"][group.groupValue]} (Taux de remplissage: ${((placesCount["slot_nb_places_long"][group.groupValue] - placesCount["slot_nb_free_places_long"][group.groupValue]) / placesCount["slot_nb_places_long"][group.groupValue])?string.percent})</p>
+                </#list>
+            </div>
+        </div>
+        </#list>
+        </#if>
+    </div>
+    <div class="col-sm-5">
+        <div id="map" style="height:500px;"></div>
+    </div>
+</div>
+
+<script>
+    window.lutece_appointment_solrsearchapp_points = [
+        <#if (results.values)??>
+        <#list results.values as groupcommand>
+        <#list groupcommand.values as group>
+        <#if (group.result.list[0].appointmentslot_geojson)??>
+        <#if 0 < group_index >,</#if>
+        {
+            "type": "appointment",
+            "code": "appointment",
+            "url_base": "${group.result.list[0].url_base_string?json_string}",
+            "id": "${group.result.list[0].uid_form_string?json_string}",
+            "geojson": ${group.result.list[0].appointmentslot_geojson}
+        }
+        </#if>
+        </#list>
+        </#list>
+        </#if>
+    ];
+
+    window.lutece_appointment_solrsearchapp_freePlaces = {
+        <#if (results.values)??>
+        <#list results.values as groupcommand>
+        <#list groupcommand.values as group>
+        "${group.groupValue?json_string}": ${placesCount["slot_nb_free_places_long"][group.groupValue]}<#if group_has_next>,</#if>
+        </#list>
+        </#list>
+        </#if>
+    }
+</script>
