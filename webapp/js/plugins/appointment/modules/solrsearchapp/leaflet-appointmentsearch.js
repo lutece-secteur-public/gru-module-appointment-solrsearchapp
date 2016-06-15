@@ -80,7 +80,7 @@ $(window).load(function () {
       "Esri Streets": esri_streets,
       "OpenStreetMap": osm
   };
-  var overlayMaps = marker_clusters;
+  var overlayMaps = { "rendez-vous": markers };
   // paramétrage et ajout du L.control.layers à la carte
   L.control.layers(baseMaps, overlayMaps).addTo(map);
 });

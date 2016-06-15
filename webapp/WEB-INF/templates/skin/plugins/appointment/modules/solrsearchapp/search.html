@@ -96,12 +96,13 @@
 </div>
 
 <script>
+    <#assign comma=false>
     window.lutece_appointment_solrsearchapp_points = [
         <#if (results.values)??>
         <#list results.values as groupcommand>
         <#list groupcommand.values as group>
         <#if (group.result.list[0].appointmentslot_geojson)??>
-        <#if 0 < group_index >,</#if>
+        <#if comma>,<#else><#assign comma=true></#if>
         {
             "type": "appointment",
             "code": "appointment",
