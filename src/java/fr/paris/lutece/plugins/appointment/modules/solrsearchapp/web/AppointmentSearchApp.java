@@ -88,6 +88,9 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String PARAMETER_FROM_TIME = "from_time";
     private static final String PARAMETER_TO_DATE = "to_date";
     private static final String PARAMETER_TO_TIME = "to_time";
+    private static final String PARAMETER_FROM_DAY_MINUTE = "from_day_minute";
+    private static final String PARAMETER_TO_DAY_MINUTE = "to_day_minute";
+    private static final String PARAMETER_DAYS_OF_WEEK = "days_of_week";
 
     private static final String DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
     private static final String DATE_FORMAT_INPUT_TIME = "HH:mm";
@@ -96,6 +99,7 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String MARK_ITEM_SITES = "items_sites";
     private static final String MARK_ITEM_CATEGORIES = "items_categories";
     private static final String MARK_ITEM_FORMS = "items_forms";
+    private static final String MARK_ITEM_DAYS_OF_WEEK = "items_days_of_week";
     private static final String MARK_SITE = "site";
     private static final String MARK_CATEGORIE = "category";
     private static final String MARK_FORM = "form";
@@ -103,7 +107,11 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String MARK_FROM_TIME = "from_time";
     private static final String MARK_TO_DATE = "to_date";
     private static final String MARK_TO_TIME = "to_time";
+    private static final String MARK_FROM_DAY_MINUTE = "from_day_minute";
+    private static final String MARK_TO_DAY_MINUTE = "to_day_minute";
     private static final String MARK_RESULTS = "results";
+
+    private static final String[] listDaysNames = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
 
     private static final List<SimpleImmutableEntry<String,String>> SEARCH_FIELDS = Arrays.asList(
         new SimpleImmutableEntry<>( PARAMETER_SITE     , MARK_SITE      ),
@@ -112,7 +120,9 @@ public class AppointmentSearchApp extends MVCApplication {
         new SimpleImmutableEntry<>( PARAMETER_FROM_DATE, MARK_FROM_DATE ),
         new SimpleImmutableEntry<>( PARAMETER_FROM_TIME, MARK_FROM_TIME ),
         new SimpleImmutableEntry<>( PARAMETER_TO_DATE  , MARK_TO_DATE   ),
-        new SimpleImmutableEntry<>( PARAMETER_TO_TIME  , MARK_TO_TIME   )
+        new SimpleImmutableEntry<>( PARAMETER_TO_TIME  , MARK_TO_TIME   ),
+        new SimpleImmutableEntry<>( PARAMETER_FROM_DAY_MINUTE  , MARK_FROM_DAY_MINUTE ),
+        new SimpleImmutableEntry<>( PARAMETER_TO_DAY_MINUTE    , MARK_TO_DAY_MINUTE   )
     );
 
     private static final int SOLR_GROUP_LIMIT = 3;
@@ -128,6 +138,8 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String SOLR_FIELD_FORM_UID_TITLE = "form_id_title_string";
     private static final String SOLR_FIELD_FORM_UID = "uid_form_string";
     private static final String SOLR_FIELD_DATE = "date";
+    private static final String SOLR_FIELD_MINUTE_OF_DAY = "minute_of_day_long";
+    private static final String SOLR_FIELD_DAY_OF_WEEK = "day_of_week_long";
     private static final String SOLR_FIELD_NB_FREE_PLACES = "slot_nb_free_places_long";
     private static final String SOLR_FIELD_NB_PLACES = "slot_nb_places_long";
     private static final String SOLR_TYPE_APPOINTMENT = "appointment";
@@ -146,6 +158,7 @@ public class AppointmentSearchApp extends MVCApplication {
     );
 
     private Map<String, String> _searchParameters;
+    private Map<String, String[]> _searchMultiParameters;
 
     private String getSearchParameter( String parameter, HttpServletRequest request, Map<String, String> savedSearchParameters ) {
         String result = request.getParameter( parameter );
@@ -176,9 +189,19 @@ public class AppointmentSearchApp extends MVCApplication {
         }
     }
 
+    private String[] getSearchMultiParameter( String parameter, HttpServletRequest request, Map<String, String[]> savedMultiSearchParameters ) {
+        String[] result = request.getParameterValues( parameter );
+        if (result != null) {
+            return result;
+        }
+        result = savedMultiSearchParameters.get(parameter);
+        return result;
+    }
+
     private void initSearchParameters() {
         if (_searchParameters == null) {
             _searchParameters = new HashMap<>();
+            _searchMultiParameters = new HashMap<>();
         }
     }
 
@@ -235,6 +258,21 @@ public class AppointmentSearchApp extends MVCApplication {
             query.addFacetField( strFacetField );
         }
 
+        StringBuffer  sbFqDaysOfWeek = new StringBuffer();
+        String[] searchDays = getSearchMultiParameter( PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
+        if ( searchDays != null && searchDays.length > 0 ) {
+            sbFqDaysOfWeek.append( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" );
+            for (int nDay = 0; nDay < searchDays.length; nDay++) {
+                if (nDay > 0) {
+                    sbFqDaysOfWeek.append(" OR ");
+                }
+                sbFqDaysOfWeek.append( searchDays[nDay] );
+            }
+            sbFqDaysOfWeek.append( ")" );
+        }
+        query.addFilterQuery ( sbFqDaysOfWeek.toString() );
+        query.addFacetField( "{!ex=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK );
+
         String strFromDate = getSearchParameterValue(PARAMETER_FROM_DATE, request, _searchParameters);
         String strFromTime = getSearchParameterValue(PARAMETER_FROM_TIME, request, _searchParameters);
         String strToDate = getSearchParameterValue(PARAMETER_TO_DATE, request, _searchParameters);
@@ -246,7 +284,6 @@ public class AppointmentSearchApp extends MVCApplication {
         try {
             dateFrom = formatter_input.parse( strFromDate + " " + strFromTime );
         } catch (ParseException e) {
-            AppLogService.error("Failed parse" + e, e);
             dateFrom = null;
         }
 
@@ -274,6 +311,24 @@ public class AppointmentSearchApp extends MVCApplication {
                 strSolrDateTo = "*";
             }
             query.addFilterQuery ( SOLR_FIELD_DATE + ":[" + strSolrDateFrom + " TO " + strSolrDateTo + "]");
+        }
+
+        String strFromDayMinute = getSearchParameterValue(PARAMETER_FROM_DAY_MINUTE, request, _searchParameters);
+        String strToDayMinute = getSearchParameterValue(PARAMETER_TO_DAY_MINUTE, request, _searchParameters);
+        if (strFromDayMinute != null || strToDayMinute != null) {
+            String strSolrDayMinuteFrom;
+            if (strFromDayMinute != null) {
+                strSolrDayMinuteFrom = strFromDayMinute;
+            } else {
+                strSolrDayMinuteFrom = "*";
+            }
+            String strSolrDayMinuteTo;
+            if (strToDayMinute != null) {
+                strSolrDayMinuteTo = strToDayMinute;
+            } else {
+                strSolrDayMinuteTo = "*";
+            }
+            query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]");
         }
 
         QueryResponse response = null;
@@ -366,6 +421,45 @@ public class AppointmentSearchApp extends MVCApplication {
                 }
                 model.put( entry.getValue(), referenceList );
             }
+
+            FacetField facetField = response.getFacetField( SOLR_FIELD_DAY_OF_WEEK );
+            ReferenceList referenceListDaysOfWeek = new ReferenceList();
+            boolean[] searchDaysChecked = new boolean[listDaysNames.length];
+            if ( searchDays != null ) {
+                for ( String strDay : searchDays ) {
+                    searchDaysChecked[Integer.parseInt(strDay)] = true;
+                }
+            }
+
+            FacetField.Count[] searchDaysCounts = new FacetField.Count[listDaysNames.length];
+            for (FacetField.Count facetFieldCount: facetField.getValues()) {
+                int nName;
+                try {
+                    nName = Integer.parseInt(facetFieldCount.getName())-1;
+                } catch (NumberFormatException nfe) {
+                    nName = -1;
+                }
+                if (nName >= 0 && nName<listDaysNames.length) {
+                    searchDaysCounts[nName] = facetFieldCount;
+                } else {
+                    AppLogService.error ( "AppointmentSolr error, got invalid " + SOLR_FIELD_DAY_OF_WEEK + "=" + facetFieldCount.getName()); 
+                }
+            }
+
+            for (int nDay = 0; nDay < listDaysNames.length; nDay++) {
+                ReferenceItem item = new ReferenceItem(  );
+                item.setCode( Integer.toString( nDay ) );
+                long count;
+                if ( searchDaysCounts[nDay] != null ) {
+                    count = searchDaysCounts[nDay].getCount();
+                } else {
+                    count = 0;
+                }
+                item.setName( listDaysNames[nDay] + " (" + count + ")" );
+                item.setChecked( searchDaysChecked[nDay] );
+                referenceListDaysOfWeek.add(item);
+            }
+            model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
         }
         return getXPage(TEMPLATE_SEARCH, request.getLocale(), model);
     }
@@ -423,9 +517,11 @@ public class AppointmentSearchApp extends MVCApplication {
         for (SimpleImmutableEntry<String,String> entry: SEARCH_FIELDS) {
             String strValue = request.getParameter(entry.getKey());
             if (strValue != null) {
-                _searchParameters.put( entry.getValue(), strValue );
+                _searchParameters.put( entry.getKey(), strValue );
             }
         }
+
+        _searchMultiParameters.put( PARAMETER_DAYS_OF_WEEK, request.getParameterValues( PARAMETER_DAYS_OF_WEEK ) );
 
         return redirectView( request, VIEW_SEARCH );
     }
@@ -440,6 +536,7 @@ public class AppointmentSearchApp extends MVCApplication {
     {
         initSearchParameters();
         _searchParameters.clear();
+        _searchMultiParameters.clear();
 
         return redirectView( request, VIEW_SEARCH );
     }

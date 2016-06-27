@@ -6,6 +6,16 @@
     { "code":"18:00", "name":"18h00"},
     { "code":"21:00", "name":"21h00"}
     ]>
+
+
+<#assign items_minutes= [
+    { "code": "360", "name":"06h00"},
+    { "code": "540", "name":"09h00"},
+    { "code": "720", "name":"12h00"},
+    { "code": "900", "name":"15h00"},
+    { "code":"1080", "name":"18h00"},
+    { "code":"1260", "name":"21h00"}
+    ]>
 <div class="row">
     <div class="col-sm-12">
         <form name="search" method="post" action="jsp/site/Portal.jsp">
@@ -59,6 +69,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-2"><@combo name="from_day_minute" default_value=from_day_minute! items=items_minutes /></div>
+                <div class="col-sm-2"><@combo name="to_day_minute" default_value=to_day_minute! items=items_minutes /></div>
+                <div class="col-sm-2"><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div>
                 <div class="col-sm-1"><input type="submit" class="btn btn-primary" name="action_search" value="search"></div>
                 <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="clear"></div>
             </div>
