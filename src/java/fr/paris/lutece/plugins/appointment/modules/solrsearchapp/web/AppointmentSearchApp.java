@@ -350,8 +350,13 @@ public class AppointmentSearchApp extends MVCApplication {
                         strName = facetFieldCount.getName();
                         strCodeName = facetFieldCount.getName();
                     }
-                    referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount() + ")" );
-                    bCurrentSearchParameterPresent |= strCode.equals(strSearchParameterValue);
+                    //If there is an empty value in solr,
+                    //we don't display it as a filter
+                    //but still count it in the total.
+                    if ( StringUtils.isNotBlank( strCodeName ) ) {
+                        referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount() + ")" );
+                        bCurrentSearchParameterPresent |= strCode.equals(strSearchParameterValue);
+                    }
                     total += facetFieldCount.getCount();
                 }
 
