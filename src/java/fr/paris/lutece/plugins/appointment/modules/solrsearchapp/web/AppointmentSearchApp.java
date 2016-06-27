@@ -244,7 +244,6 @@ public class AppointmentSearchApp extends MVCApplication {
         SimpleDateFormat formatter_input = new SimpleDateFormat( DATE_FORMAT_INPUT_DATE + " " + DATE_FORMAT_INPUT_TIME );
         Date dateFrom;
         try {
-            System.out.println( "Try parse:" + strFromDate + " " + strFromTime);
             dateFrom = formatter_input.parse( strFromDate + " " + strFromTime );
         } catch (ParseException e) {
             AppLogService.error("Failed parse" + e, e);
@@ -258,8 +257,6 @@ public class AppointmentSearchApp extends MVCApplication {
             dateTo = null;
         }
 
-        System.out.println("JONDATEFROM" + dateFrom);
-        System.out.println("JONDATETO" + dateTo);
         if (dateFrom != null || dateTo != null) {
             SimpleDateFormat formatter_output = new SimpleDateFormat( DATE_FORMAT_OUTPUT );
             String strSolrDateFrom;
@@ -281,7 +278,6 @@ public class AppointmentSearchApp extends MVCApplication {
 
         QueryResponse response = null;
         try {
-            System.out.println("JONQUERY" + query);
             response = solrServer.query(query);
         } catch (SolrServerException e) {
             AppLogService.error ( "AppointmentSolr error, exception during query", e); 
