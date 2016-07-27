@@ -41,8 +41,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
@@ -111,7 +113,16 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String MARK_TO_DAY_MINUTE = "to_day_minute";
     private static final String MARK_RESULTS = "results";
 
-    private static final String[] listDaysNames = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+    private static final String[] listDaysCodes = { "1","2","3","4","5","6","7" };
+    private static final List<SimpleImmutableEntry<String,String>> listDays = Arrays.asList(
+            new SimpleImmutableEntry<> ( "1", "Lundi" ),
+            new SimpleImmutableEntry<> ( "2", "Mardi" ),
+            new SimpleImmutableEntry<> ( "3", "Mercredi" ),
+            new SimpleImmutableEntry<> ( "4", "Jeudi" ),
+            new SimpleImmutableEntry<> ( "5", "Vendredi" ),
+            new SimpleImmutableEntry<> ( "6", "Samedi" ),
+            new SimpleImmutableEntry<> ( "7", "Dimanche" )
+    );
 
     private static final List<SimpleImmutableEntry<String,String>> SEARCH_FIELDS = Arrays.asList(
         new SimpleImmutableEntry<>( PARAMETER_SITE     , MARK_SITE      ),
@@ -202,6 +213,9 @@ public class AppointmentSearchApp extends MVCApplication {
         if (_searchParameters == null) {
             _searchParameters = new HashMap<>();
             _searchMultiParameters = new HashMap<>();
+            _searchMultiParameters.put ( PARAMETER_DAYS_OF_WEEK, listDaysCodes );
+            _searchParameters.put( PARAMETER_FROM_DAY_MINUTE, "360" );
+            _searchParameters.put( PARAMETER_TO_DAY_MINUTE, "1260" );
         }
     }
 
@@ -424,39 +438,29 @@ public class AppointmentSearchApp extends MVCApplication {
 
             FacetField facetField = response.getFacetField( SOLR_FIELD_DAY_OF_WEEK );
             ReferenceList referenceListDaysOfWeek = new ReferenceList();
-            boolean[] searchDaysChecked = new boolean[listDaysNames.length];
-            if ( searchDays != null ) {
-                for ( String strDay : searchDays ) {
-                    searchDaysChecked[Integer.parseInt(strDay)] = true;
-                }
+            Set<String> searchDaysChecked = new HashSet<>();
+            if (searchDays != null) {
+                searchDaysChecked.addAll(Arrays.asList(searchDays));
             }
-
-            FacetField.Count[] searchDaysCounts = new FacetField.Count[listDaysNames.length];
+            Map<String, FacetField.Count> searchDaysCounts = new HashMap<>();
             for (FacetField.Count facetFieldCount: facetField.getValues()) {
-                int nName;
-                try {
-                    nName = Integer.parseInt(facetFieldCount.getName())-1;
-                } catch (NumberFormatException nfe) {
-                    nName = -1;
-                }
-                if (nName >= 0 && nName<listDaysNames.length) {
-                    searchDaysCounts[nName] = facetFieldCount;
-                } else {
-                    AppLogService.error ( "AppointmentSolr error, got invalid " + SOLR_FIELD_DAY_OF_WEEK + "=" + facetFieldCount.getName()); 
-                }
+                searchDaysCounts.put(facetFieldCount.getName(), facetFieldCount);
             }
 
-            for (int nDay = 0; nDay < listDaysNames.length; nDay++) {
+            for (SimpleImmutableEntry<String,String> day: listDays) {
+                String strDayCode = day.getKey( );
+                String strDayLabel = day.getValue( );
                 ReferenceItem item = new ReferenceItem(  );
-                item.setCode( Integer.toString( nDay ) );
+                item.setCode( strDayCode );
                 long count;
-                if ( searchDaysCounts[nDay] != null ) {
-                    count = searchDaysCounts[nDay].getCount();
+                FacetField.Count facetFieldCount = searchDaysCounts.get( strDayCode );
+                if ( facetFieldCount != null ) {
+                    count = facetFieldCount.getCount();
                 } else {
                     count = 0;
                 }
-                item.setName( listDaysNames[nDay] + " (" + count + ")" );
-                item.setChecked( searchDaysChecked[nDay] );
+                item.setName( strDayLabel + " (" + count + ")" );
+                item.setChecked( searchDaysChecked.contains( strDayCode ) );
                 referenceListDaysOfWeek.add(item);
             }
             model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
@@ -537,6 +541,9 @@ public class AppointmentSearchApp extends MVCApplication {
         initSearchParameters();
         _searchParameters.clear();
         _searchMultiParameters.clear();
+        _searchMultiParameters.put ( PARAMETER_DAYS_OF_WEEK, listDaysCodes );
+        _searchParameters.put( PARAMETER_FROM_DAY_MINUTE, "360" );
+        _searchParameters.put( PARAMETER_TO_DAY_MINUTE, "1260" );
 
         return redirectView( request, VIEW_SEARCH );
     }
