@@ -21,11 +21,14 @@
         <form name="search" method="post" action="jsp/site/Portal.jsp">
             <input name="page" value="appointmentsearch" type="hidden">
             <div class="row">
-                <div class="col-sm-2"><@combo name="site" default_value=site! items=items_sites /></div>
-                <div class="col-sm-2"><@combo name="category" default_value=category! items=items_categories /></div>
-                <div class="col-sm-2"><@combo name="form" default_value=form! items=items_forms /></div>
-                <div class="col-sm-3">
+                <div class="col-sm-4"><div class="form-group"><label>Site</label><@comboWithParams name="site" default_value=site! additionalParameters='class="form-control"' items=items_sites /></div></div>
+                <div class="col-sm-4"><div class="form-group"><label>Categorie</label><@comboWithParams name="category" default_value=category! additionalParameters='class="form-control"' items=items_categories /></div></div>
+                <div class="col-sm-4"><div class="form-group"><label>Démarche</label><@comboWithParams name="form" default_value=form! additionalParameters='class="form-control"' items=items_forms /></div></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
                     <div class="form-group">
+                    <label>Dates</label>
                         <div class="row">
                         <div class="col-sm-6">	
                             <label for="from_date" class="sr-only">Du</label>
@@ -34,7 +37,7 @@
                                 <input class="form-control" id="from_date" name="from_date" type="text" value="${from_date!}">
                             </div>	
                         </div>	
-                        <div class="col-sm-6"><@combo name="from_time" default_value=from_time! items=items_time /></div>
+                        <div class="col-sm-6"><@comboWithParams name="from_time" default_value=from_time! additionalParameters='class="form-control"' items=items_time /></div>
                         <div class="clearfix"></div>
                         <div class="col-sm-6">
                             <label for="to_date" class="sr-only">Au</label>
@@ -43,7 +46,7 @@
                                 <input class="form-control" id="to_date" name="to_date" type="text" value="${to_date!}">
                             </div>
                         </div>
-                        <div class="col-sm-6"><@combo name="to_time" default_value=to_time! items=items_time /></div>
+                        <div class="col-sm-6"><@comboWithParams name="to_time" default_value=to_time! additionalParameters='class="form-control"' items=items_time /></div>
 <script src="js/jquery/plugins/ui/jquery-ui.min.js"></script>
 <script src="js/jquery/plugins/ui/ui.datepicker-fr.js"></script>
 <script>
@@ -69,10 +72,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-2"><@combo name="from_day_minute" default_value=from_day_minute! items=items_minutes /></div>
-                <div class="col-sm-2"><@combo name="to_day_minute" default_value=to_day_minute! items=items_minutes /></div>
-                <div class="col-sm-2"><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div>
-                <div class="col-sm-1"><input type="submit" class="btn btn-primary" name="action_search" value="search"></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                    <label>Horaires</label>
+                    <div class="row">
+                        <div class="col-sm-3"><@comboWithParams name="from_day_minute" default_value=from_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
+                        <div class="col-sm-3"><@comboWithParams name="to_day_minute" default_value=to_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
+                    </div>
+                </div></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12"><div class="form-group"><label class="col-sm-12">Jours de la semaine</label><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1 col-sm-offset-5"><input type="submit" class="btn btn-primary" name="action_search" value="search"></div>
                 <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="clear"></div>
             </div>
         </form>
