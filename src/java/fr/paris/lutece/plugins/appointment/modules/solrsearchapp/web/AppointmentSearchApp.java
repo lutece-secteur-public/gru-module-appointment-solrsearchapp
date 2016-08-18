@@ -141,6 +141,8 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String SOLR_QUERY_ALL = "*:*";
     private static final String SOLR_FILTERQUERY_ALLOWED_NOW = "{!frange l=0}sub(sub(ms(date),mul(3600000,min_hours_before_appointment_long)),ms())";
     private static final String SOLR_FILTERQUERY_NOT_FULL = "NOT slot_nb_free_places_long:0";
+    private static final String SOLR_FILTERQUERY_DAY_OPEN = "day_open_string:true";
+    private static final String SOLR_FILTERQUERY_ENABLED = "enabled_string:true";
     private static final String SOLR_FILTERQUERY_ACTIVE = "appointment_active_string:true";
     private static final String SOLR_FIELD_TYPE = "type";
     private static final String SOLR_FIELD_SITE = "site";
@@ -247,6 +249,8 @@ public class AppointmentSearchApp extends MVCApplication {
         query.addFilterQuery( SOLR_FIELD_TYPE + ":" + SOLR_TYPE_APPOINTMENT_SLOT );
         query.addFilterQuery( SOLR_FILTERQUERY_ALLOWED_NOW );
         query.addFilterQuery( SOLR_FILTERQUERY_NOT_FULL    );
+        query.addFilterQuery( SOLR_FILTERQUERY_DAY_OPEN    );
+        query.addFilterQuery( SOLR_FILTERQUERY_ENABLED     );
         query.addFilterQuery( SOLR_FILTERQUERY_ACTIVE      );
         query.addSort( SOLR_FIELD_DATE, SolrQuery.ORDER.asc );
         query.set(GroupParams.GROUP, true);
