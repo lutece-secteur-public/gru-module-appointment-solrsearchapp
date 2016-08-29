@@ -16,33 +16,34 @@
     { "code":"1080", "name":"18h00"},
     { "code":"1260", "name":"21h00"}
     ]>
+	
 <div class="row">
     <div class="col-sm-12">
         <form name="search" method="post" action="jsp/site/Portal.jsp">
             <input name="page" value="appointmentsearch" type="hidden">
             <div class="row">
-                <div class="col-sm-4"><div class="form-group"><label>Site</label><@comboWithParams name="site" default_value=site! additionalParameters='class="form-control"' items=items_sites /></div></div>
-                <div class="col-sm-4"><div class="form-group"><label>Categorie</label><@comboWithParams name="category" default_value=category! additionalParameters='class="form-control"' items=items_categories /></div></div>
-                <div class="col-sm-4"><div class="form-group"><label>Démarche</label><@comboWithParams name="form" default_value=form! additionalParameters='class="form-control"' items=items_forms /></div></div>
+                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.site}</label><@comboWithParams name="site" default_value=site! additionalParameters='class="form-control"' items=items_sites /></div></div>
+                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.category}</label><@comboWithParams name="category" default_value=category! additionalParameters='class="form-control"' items=items_categories /></div></div>
+                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.step}</label><@comboWithParams name="form" default_value=form! additionalParameters='class="form-control"' items=items_forms /></div></div>
             </div>
             <div class="row">
                 <div class="col-sm-6">
                     <div class="form-group">
-                    <label>Dates</label>
+                    <label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.dates}</label>
                         <div class="row">
                         <div class="col-sm-6">	
-                            <label for="from_date" class="sr-only">Du</label>
+                            <label for="from_date" class="sr-only">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</label>
                             <div class="input-group">
-                                <span class="input-group-addon">Du</span>
+                                <span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</span>
                                 <input class="form-control" id="from_date" name="from_date" type="text" value="${from_date!}">
                             </div>	
                         </div>	
                         <div class="col-sm-6"><@comboWithParams name="from_time" default_value=from_time! additionalParameters='class="form-control"' items=items_time /></div>
                         <div class="clearfix"></div>
                         <div class="col-sm-6">
-                            <label for="to_date" class="sr-only">Au</label>
+                            <label for="to_date" class="sr-only">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}</label>
                             <div class="input-group">
-                                <span class="input-group-addon">Au</span>
+                                <span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}</span>
                                 <input class="form-control" id="to_date" name="to_date" type="text" value="${to_date!}">
                             </div>
                         </div>
@@ -76,7 +77,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="form-group">
-                    <label>Horaires</label>
+                    <label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.schedule}</label>
                     <div class="row">
                         <div class="col-sm-3"><@comboWithParams name="from_day_minute" default_value=from_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
                         <div class="col-sm-3"><@comboWithParams name="to_day_minute" default_value=to_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
@@ -84,11 +85,11 @@
                 </div></div>
             </div>
             <div class="row">
-                <div class="col-sm-12"><div class="form-group"><label class="col-sm-12">Jours de la semaine</label><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div></div>
+                <div class="col-sm-12"><div class="form-group"><label class="col-sm-12">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.daysOfTheWeek}</label><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div></div>
             </div>
             <div class="row">
-                <div class="col-sm-1 col-sm-offset-5"><input type="submit" class="btn btn-primary" name="action_search" value="search"></div>
-                <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="clear"></div>
+                <div class="col-sm-1 col-sm-offset-5"><input type="submit" class="btn btn-primary" name="action_search" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.search}"></div>
+                <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.reset}"></div>
             </div>
         </form>
     </div>
@@ -102,16 +103,16 @@
             <div class="col-sm-12">
                 <#list groupcommand.values as group>
                 <h3>${group.result.list[0].title}</h3>
-                <#if (group.result.list[0].appointmentslot_address_text)??><p>Addresse: ${group.result.list[0].appointmentslot_address_text}</p></#if>
-                <p>Premiers horaires:</p>
+                <#if (group.result.list[0].appointmentslot_address_text)??><p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text}</p></#if>
+                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
                 <#list group.result.list as slot>
                 <div class="row">
-                    <div class="col-sm-12">${slot.date?datetime} <a href="${slot.url}">s'inscrire</a></div>
+                    <div class="col-sm-12">${slot.date?datetime} <a href="${slot.url}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.subscribe}</a></div>
                 </div>
                 </#list>
                 <p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s)...</p>
-                <a href="${group.result.list[0].url_form_string}">Voir le calendrier de tous les horaires</a>
-                <p>Nombre de places libres: ${placesCount["slot_nb_free_places_long"][group.groupValue]} (Taux de remplissage: ${((placesCount["slot_nb_places_long"][group.groupValue] - placesCount["slot_nb_free_places_long"][group.groupValue]) / placesCount["slot_nb_places_long"][group.groupValue])?string.percent})</p>
+                <a href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
+                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} : ${placesCount["slot_nb_free_places_long"][group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((placesCount["slot_nb_places_long"][group.groupValue] - placesCount["slot_nb_free_places_long"][group.groupValue]) / placesCount["slot_nb_places_long"][group.groupValue])?string.percent})</p>
                 </#list>
             </div>
         </div>
