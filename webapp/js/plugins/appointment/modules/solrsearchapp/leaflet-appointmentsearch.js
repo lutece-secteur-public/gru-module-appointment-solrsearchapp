@@ -47,11 +47,19 @@ $(window).load(function () {
 
     for (var i = 0; i < points.length; i++) {
 
-        var nbFreePlaces = freePlaces[points[i]["id"]];
+        var nbFreePlaces = freePlaces[points[i]["id"]]["free"];
+        var nbTotalPlaces = freePlaces[points[i]["id"]]["total"];
+		var ratioPlaces = nbFreePlaces / nbTotalPlaces ;
+		var color = "";
+		if ( ratioPlaces < 0.1 ) {
+			color = "_red";
+		} else if ( ratioPlaces < 0.2 ) {
+			color = "_yellow";
+		}
         var marker = L.marker( [
                 points[i]["geojson"]["geometry"]["coordinates"][1],
                 points[i]["geojson"]["geometry"]["coordinates"][0]
-            ], {icon: new L.NumberedDivIcon({number: nbFreePlaces})});
+            ], {icon: new L.NumberedDivIcon({number: nbFreePlaces,  iconUrl: L.Icon.Default.imagePath + '/marker_hole' + color + '.png'})});
 
         var popupContent = "<p>Loading " + points[i]["type"] + " " + points[i]["id"] + " " + points[i]["code"] + "...</p>";
         marker.bindPopup(popupContent)
