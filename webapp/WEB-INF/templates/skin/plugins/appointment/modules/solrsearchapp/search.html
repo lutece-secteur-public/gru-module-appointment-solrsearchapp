@@ -112,7 +112,7 @@
                 </#list>
                 <p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s)...</p>
                 <a href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
-                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} : ${placesCount["slot_nb_free_places_long"][group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((placesCount["slot_nb_places_long"][group.groupValue] - placesCount["slot_nb_free_places_long"][group.groupValue]) / placesCount["slot_nb_places_long"][group.groupValue])?string.percent})</p>
+                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} : ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
                 </#list>
             </div>
         </div>
@@ -149,7 +149,10 @@
         <#if (results.values)??>
         <#list results.values as groupcommand>
         <#list groupcommand.values as group>
-        "${group.groupValue?json_string}": ${placesCount["slot_nb_free_places_long"][group.groupValue]}<#if group_has_next>,</#if>
+        "${group.groupValue?json_string}": {
+            "free": ${freePlacesCount[group.groupValue]},
+            "total": ${totalPlacesCount[group.groupValue]}
+        }<#if group_has_next>,</#if>
         </#list>
         </#list>
         </#if>

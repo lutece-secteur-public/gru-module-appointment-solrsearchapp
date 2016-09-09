@@ -155,6 +155,8 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String SOLR_FIELD_DAY_OF_WEEK = "day_of_week_long";
     private static final String SOLR_FIELD_NB_FREE_PLACES = "slot_nb_free_places_long";
     private static final String SOLR_FIELD_NB_PLACES = "slot_nb_places_long";
+    private static final String SOLR_PIVOT_NB_FREE_PLACES = SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_FREE_PLACES;
+    private static final String SOLR_PIVOT_NB_PLACES = SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_PLACES;
     private static final String SOLR_TYPE_APPOINTMENT = "appointment";
     private static final String SOLR_TYPE_APPOINTMENT_SLOT = "appointment-slot";
 
@@ -244,21 +246,27 @@ public class AppointmentSearchApp extends MVCApplication {
             AppLogService.error ( "AppointmentSolr error, getSolrServer returns null" ); 
         }
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery( SOLR_QUERY_ALL );
-        query.addFilterQuery( SOLR_FIELD_TYPE + ":" + SOLR_TYPE_APPOINTMENT_SLOT );
-        query.addFilterQuery( SOLR_FILTERQUERY_ALLOWED_NOW );
+        SolrQuery queryAllPlaces = getCommonFilteredQuery();
+        queryAllPlaces.addFacetPivotField( SOLR_PIVOT_NB_PLACES );
+        QueryResponse responseAllPlaces = null;
+        try {
+            responseAllPlaces = solrServer.query(queryAllPlaces);
+        } catch (SolrServerException e) {
+            AppLogService.error ( "AppointmentSolr error, exception during queryAllPlaces", e);
+        }
+        if ( responseAllPlaces != null ) {
+            HashMap<String, Object> mapPlacesCount = getPlacesCount( responseAllPlaces, SOLR_PIVOT_NB_PLACES );
+            model.put( "totalPlacesCount", mapPlacesCount );
+        }
+
+        SolrQuery query = getCommonFilteredQuery();
         query.addFilterQuery( SOLR_FILTERQUERY_NOT_FULL    );
-        query.addFilterQuery( SOLR_FILTERQUERY_DAY_OPEN    );
-        query.addFilterQuery( SOLR_FILTERQUERY_ENABLED     );
-        query.addFilterQuery( SOLR_FILTERQUERY_ACTIVE      );
         query.addSort( SOLR_FIELD_DATE, SolrQuery.ORDER.asc );
         query.set(GroupParams.GROUP, true);
         query.set(GroupParams.GROUP_FIELD, SOLR_FIELD_FORM_UID );
         query.set(GroupParams.GROUP_LIMIT, SOLR_GROUP_LIMIT );
         query.setFacet( true );
-        query.addFacetPivotField( SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_FREE_PLACES );
-        query.addFacetPivotField( SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_PLACES );
+        query.addFacetPivotField( SOLR_PIVOT_NB_FREE_PLACES );
         query.setFacetMinCount( 1 );
 
         for (SimpleImmutableEntry<String,String> entry: EXACT_FACET_QUERIES) {
@@ -359,27 +367,8 @@ public class AppointmentSearchApp extends MVCApplication {
             GroupResponse groupResponse = response.getGroupResponse();
             model.put( MARK_RESULTS, wrapGroupResponse(groupResponse) );
 
-            HashMap<String, Object> mapPlacesCount = new HashMap<>();
-            for (Map.Entry<String, List<PivotField>> entry: response.getFacetPivot()) {
-                HashMap<String, Object> mapFormPlacesCount = new HashMap<>();
-                String key;
-                if (entry.getKey().contains( SOLR_FIELD_NB_FREE_PLACES )) {
-                    key = SOLR_FIELD_NB_FREE_PLACES;
-                } else if (entry.getKey().contains( SOLR_FIELD_NB_PLACES )) {
-                    key = SOLR_FIELD_NB_PLACES;
-                } else {
-                    continue;
-                }
-                for (PivotField pivotFieldUid: entry.getValue()) {
-                    int total = 0;
-                    for (PivotField pivotFieldPlaces: pivotFieldUid.getPivot()) {
-                        total += (Long) pivotFieldPlaces.getValue() * pivotFieldPlaces.getCount();
-                    }
-                    mapFormPlacesCount.put( (String) pivotFieldUid.getValue(), total );
-                }
-                mapPlacesCount.put(key, mapFormPlacesCount);
-            }
-            model.put( "placesCount", mapPlacesCount );
+            HashMap<String, Object> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
+            model.put( "freePlacesCount", mapFreePlacesCount );
 
             for (SimpleImmutableEntry<String,String> entry: FACET_FIELDS) {
                 ReferenceList referenceList = new ReferenceList();
@@ -550,5 +539,29 @@ public class AppointmentSearchApp extends MVCApplication {
         _searchParameters.put( PARAMETER_TO_DAY_MINUTE, "1260" );
 
         return redirectView( request, VIEW_SEARCH );
+    }
+
+    private SolrQuery getCommonFilteredQuery() {
+        SolrQuery query = new SolrQuery();
+        query.setQuery( SOLR_QUERY_ALL );
+        query.addFilterQuery( SOLR_FIELD_TYPE + ":" + SOLR_TYPE_APPOINTMENT_SLOT );
+        query.addFilterQuery( SOLR_FILTERQUERY_ALLOWED_NOW );
+        query.addFilterQuery( SOLR_FILTERQUERY_DAY_OPEN    );
+        query.addFilterQuery( SOLR_FILTERQUERY_ENABLED     );
+        query.addFilterQuery( SOLR_FILTERQUERY_ACTIVE      );
+        return query;
+    }
+
+    private HashMap<String, Object> getPlacesCount( QueryResponse response, String strPivotName ) {
+        HashMap<String, Object> mapPlacesCount = new HashMap<>();
+        List<PivotField> listPivotField = response.getFacetPivot().get( strPivotName );
+        for (PivotField pivotFieldUid: listPivotField) {
+            int total = 0;
+            for (PivotField pivotFieldPlaces: pivotFieldUid.getPivot()) {
+                total += (Long) pivotFieldPlaces.getValue() * pivotFieldPlaces.getCount();
+            }
+            mapPlacesCount.put( (String) pivotFieldUid.getValue(), total );
+        }
+        return mapPlacesCount;
     }
 }
