@@ -246,7 +246,7 @@ public class AppointmentSearchApp extends MVCApplication {
             AppLogService.error ( "AppointmentSolr error, getSolrServer returns null" ); 
         }
 
-        SolrQuery queryAllPlaces = getCommonFilteredQuery();
+        SolrQuery queryAllPlaces = getCommonFilteredQuery( request );
         queryAllPlaces.addFacetPivotField( SOLR_PIVOT_NB_PLACES );
         QueryResponse responseAllPlaces = null;
         try {
@@ -259,7 +259,7 @@ public class AppointmentSearchApp extends MVCApplication {
             model.put( "totalPlacesCount", mapPlacesCount );
         }
 
-        SolrQuery query = getCommonFilteredQuery();
+        SolrQuery query = getCommonFilteredQuery( request );
         query.addFilterQuery( SOLR_FILTERQUERY_NOT_FULL    );
         query.addSort( SOLR_FIELD_DATE, SolrQuery.ORDER.asc );
         query.set(GroupParams.GROUP, true);
@@ -268,94 +268,6 @@ public class AppointmentSearchApp extends MVCApplication {
         query.setFacet( true );
         query.addFacetPivotField( SOLR_PIVOT_NB_FREE_PLACES );
         query.setFacetMinCount( 1 );
-
-        for (SimpleImmutableEntry<String,String> entry: EXACT_FACET_QUERIES) {
-            String strValue = getSearchParameterValue( entry.getValue(), request, _searchParameters );
-            String strFacetField;
-            if ( SOLR_FIELD_FORM_UID.equals(entry.getKey()) ) {
-                strFacetField = SOLR_FIELD_FORM_UID_TITLE;
-            } else {
-                strFacetField = entry.getKey();
-            }
-            if (StringUtils.isNotBlank(strValue)) {
-                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + entry.getKey() + ":" + strValue );
-                strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
-            }
-            query.addFacetField( strFacetField );
-        }
-
-        StringBuffer  sbFqDaysOfWeek = new StringBuffer();
-        String[] searchDays = getSearchMultiParameter( PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
-        if ( searchDays != null && searchDays.length > 0 ) {
-            sbFqDaysOfWeek.append( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" );
-            for (int nDay = 0; nDay < searchDays.length; nDay++) {
-                if (nDay > 0) {
-                    sbFqDaysOfWeek.append(" OR ");
-                }
-                sbFqDaysOfWeek.append( searchDays[nDay] );
-            }
-            sbFqDaysOfWeek.append( ")" );
-        }
-        query.addFilterQuery ( sbFqDaysOfWeek.toString() );
-        query.addFacetField( "{!ex=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK );
-
-        String strFromDate = getSearchParameterValue(PARAMETER_FROM_DATE, request, _searchParameters);
-        String strFromTime = getSearchParameterValue(PARAMETER_FROM_TIME, request, _searchParameters);
-        String strToDate = getSearchParameterValue(PARAMETER_TO_DATE, request, _searchParameters);
-        String strToTime = getSearchParameterValue(PARAMETER_TO_TIME, request, _searchParameters);
-
-        //SimpleDateFormat is not thread safe, create a new one each time..
-        SimpleDateFormat formatter_input = new SimpleDateFormat( DATE_FORMAT_INPUT_DATE + " " + DATE_FORMAT_INPUT_TIME );
-        Date dateFrom;
-        try {
-            dateFrom = formatter_input.parse( strFromDate + " " + strFromTime );
-        } catch (ParseException e) {
-            dateFrom = null;
-        }
-
-        Date dateTo;
-        try {
-            dateTo = formatter_input.parse( strToDate + " " + strToTime );
-        } catch (ParseException e) {
-            dateTo = null;
-        }
-
-        if (dateFrom != null || dateTo != null) {
-            SimpleDateFormat formatter_output = new SimpleDateFormat( DATE_FORMAT_OUTPUT );
-            String strSolrDateFrom;
-            String strSolrDateTo;
-            if (dateFrom != null) {
-                formatter_output.setTimeZone(TimeZone.getTimeZone("UTC"));
-                strSolrDateFrom = formatter_output.format( dateFrom );
-            } else {
-                strSolrDateFrom = "*";
-            }
-            if (dateTo != null) {
-                formatter_output.setTimeZone(TimeZone.getTimeZone("UTC"));
-                strSolrDateTo = formatter_output.format( dateTo );
-            } else {
-                strSolrDateTo = "*";
-            }
-            query.addFilterQuery ( SOLR_FIELD_DATE + ":[" + strSolrDateFrom + " TO " + strSolrDateTo + "]");
-        }
-
-        String strFromDayMinute = getSearchParameterValue(PARAMETER_FROM_DAY_MINUTE, request, _searchParameters);
-        String strToDayMinute = getSearchParameterValue(PARAMETER_TO_DAY_MINUTE, request, _searchParameters);
-        if (strFromDayMinute != null || strToDayMinute != null) {
-            String strSolrDayMinuteFrom;
-            if (strFromDayMinute != null) {
-                strSolrDayMinuteFrom = strFromDayMinute;
-            } else {
-                strSolrDayMinuteFrom = "*";
-            }
-            String strSolrDayMinuteTo;
-            if (strToDayMinute != null) {
-                strSolrDayMinuteTo = strToDayMinute;
-            } else {
-                strSolrDayMinuteTo = "*";
-            }
-            query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]");
-        }
 
         QueryResponse response = null;
         try {
@@ -432,6 +344,7 @@ public class AppointmentSearchApp extends MVCApplication {
             FacetField facetField = response.getFacetField( SOLR_FIELD_DAY_OF_WEEK );
             ReferenceList referenceListDaysOfWeek = new ReferenceList();
             Set<String> searchDaysChecked = new HashSet<>();
+            String[] searchDays = getSearchMultiParameter( PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
             if (searchDays != null) {
                 searchDaysChecked.addAll(Arrays.asList(searchDays));
             }
@@ -541,7 +454,7 @@ public class AppointmentSearchApp extends MVCApplication {
         return redirectView( request, VIEW_SEARCH );
     }
 
-    private SolrQuery getCommonFilteredQuery() {
+    private SolrQuery getCommonFilteredQuery(HttpServletRequest request) {
         SolrQuery query = new SolrQuery();
         query.setQuery( SOLR_QUERY_ALL );
         query.addFilterQuery( SOLR_FIELD_TYPE + ":" + SOLR_TYPE_APPOINTMENT_SLOT );
@@ -549,6 +462,94 @@ public class AppointmentSearchApp extends MVCApplication {
         query.addFilterQuery( SOLR_FILTERQUERY_DAY_OPEN    );
         query.addFilterQuery( SOLR_FILTERQUERY_ENABLED     );
         query.addFilterQuery( SOLR_FILTERQUERY_ACTIVE      );
+
+        for (SimpleImmutableEntry<String,String> entry: EXACT_FACET_QUERIES) {
+            String strValue = getSearchParameterValue( entry.getValue(), request, _searchParameters );
+            String strFacetField;
+            if ( SOLR_FIELD_FORM_UID.equals(entry.getKey()) ) {
+                strFacetField = SOLR_FIELD_FORM_UID_TITLE;
+            } else {
+                strFacetField = entry.getKey();
+            }
+            if (StringUtils.isNotBlank(strValue)) {
+                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + entry.getKey() + ":" + strValue );
+                strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
+            }
+            query.addFacetField( strFacetField );
+        }
+
+        StringBuffer  sbFqDaysOfWeek = new StringBuffer();
+        String[] searchDays = getSearchMultiParameter( PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
+        if ( searchDays != null && searchDays.length > 0 ) {
+            sbFqDaysOfWeek.append( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" );
+            for (int nDay = 0; nDay < searchDays.length; nDay++) {
+                if (nDay > 0) {
+                    sbFqDaysOfWeek.append(" OR ");
+                }
+                sbFqDaysOfWeek.append( searchDays[nDay] );
+            }
+            sbFqDaysOfWeek.append( ")" );
+        }
+        query.addFilterQuery ( sbFqDaysOfWeek.toString() );
+        query.addFacetField( "{!ex=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK );
+
+        String strFromDate = getSearchParameterValue(PARAMETER_FROM_DATE, request, _searchParameters);
+        String strFromTime = getSearchParameterValue(PARAMETER_FROM_TIME, request, _searchParameters);
+        String strToDate = getSearchParameterValue(PARAMETER_TO_DATE, request, _searchParameters);
+        String strToTime = getSearchParameterValue(PARAMETER_TO_TIME, request, _searchParameters);
+
+        //SimpleDateFormat is not thread safe, create a new one each time..
+        SimpleDateFormat formatter_input = new SimpleDateFormat( DATE_FORMAT_INPUT_DATE + " " + DATE_FORMAT_INPUT_TIME );
+        Date dateFrom;
+        try {
+            dateFrom = formatter_input.parse( strFromDate + " " + strFromTime );
+        } catch (ParseException e) {
+            dateFrom = null;
+        }
+
+        Date dateTo;
+        try {
+            dateTo = formatter_input.parse( strToDate + " " + strToTime );
+        } catch (ParseException e) {
+            dateTo = null;
+        }
+
+        if (dateFrom != null || dateTo != null) {
+            SimpleDateFormat formatter_output = new SimpleDateFormat( DATE_FORMAT_OUTPUT );
+            String strSolrDateFrom;
+            String strSolrDateTo;
+            if (dateFrom != null) {
+                formatter_output.setTimeZone(TimeZone.getTimeZone("UTC"));
+                strSolrDateFrom = formatter_output.format( dateFrom );
+            } else {
+                strSolrDateFrom = "*";
+            }
+            if (dateTo != null) {
+                formatter_output.setTimeZone(TimeZone.getTimeZone("UTC"));
+                strSolrDateTo = formatter_output.format( dateTo );
+            } else {
+                strSolrDateTo = "*";
+            }
+            query.addFilterQuery ( SOLR_FIELD_DATE + ":[" + strSolrDateFrom + " TO " + strSolrDateTo + "]");
+        }
+
+        String strFromDayMinute = getSearchParameterValue(PARAMETER_FROM_DAY_MINUTE, request, _searchParameters);
+        String strToDayMinute = getSearchParameterValue(PARAMETER_TO_DAY_MINUTE, request, _searchParameters);
+        if (strFromDayMinute != null || strToDayMinute != null) {
+            String strSolrDayMinuteFrom;
+            if (strFromDayMinute != null) {
+                strSolrDayMinuteFrom = strFromDayMinute;
+            } else {
+                strSolrDayMinuteFrom = "*";
+            }
+            String strSolrDayMinuteTo;
+            if (strToDayMinute != null) {
+                strSolrDayMinuteTo = strToDayMinute;
+            } else {
+                strSolrDayMinuteTo = "*";
+            }
+            query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]");
+        }
         return query;
     }
 
