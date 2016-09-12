@@ -332,7 +332,7 @@ public class AppointmentSearchApp extends MVCApplication {
             }
             if (dateTo != null) {
                 formatter_output.setTimeZone(TimeZone.getTimeZone("UTC"));
-                strSolrDateTo = formatter_output.format( dateFrom );
+                strSolrDateTo = formatter_output.format( dateTo );
             } else {
                 strSolrDateTo = "*";
             }
