@@ -111,7 +111,7 @@
                 </div>
                 </#list>
                 <p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s)...</p>
-                <a href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
+                <a id="link_${group.groupValue?json_string}_full_calendar" href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
                 <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} : ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
                 </#list>
             </div>

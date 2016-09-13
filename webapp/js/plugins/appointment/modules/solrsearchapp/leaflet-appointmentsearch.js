@@ -71,7 +71,14 @@ $(window).load(function () {
                 var url = point["url_base"] + "rest/leaflet/popup/" + point["type"] + "/" + nId + "/" + point["code"];
 
                 $.get(url).done(function(data) {
-                    popup.setContent(data);
+					console.log("data", data);
+					var temp = $(data);
+					var label = '';
+					$("#link_" + point["id"] + "_full_calendar").clone().appendTo(temp);
+					console.log(temp[0].outerHTML)
+					var final_data = temp[0].outerHTML;
+					console.log("final_data", final_data);
+					popup.setContent(final_data);
                     popup.update();
                 }).fail(function() {
                     map.closePopup();
