@@ -221,6 +221,8 @@ public class AppointmentSearchApp extends MVCApplication {
             _searchMultiParameters.put ( PARAMETER_DAYS_OF_WEEK, listDaysCodes );
             _searchParameters.put( PARAMETER_FROM_DAY_MINUTE, "360" );
             _searchParameters.put( PARAMETER_TO_DAY_MINUTE, "1260" );
+            _searchParameters.put( PARAMETER_FROM_TIME, "06:00" );
+            _searchParameters.put( PARAMETER_TO_TIME, "21:00" );
         }
     }
 
@@ -451,6 +453,8 @@ public class AppointmentSearchApp extends MVCApplication {
         _searchMultiParameters.put ( PARAMETER_DAYS_OF_WEEK, listDaysCodes );
         _searchParameters.put( PARAMETER_FROM_DAY_MINUTE, "360" );
         _searchParameters.put( PARAMETER_TO_DAY_MINUTE, "1260" );
+        _searchParameters.put( PARAMETER_FROM_TIME, "06:00" );
+        _searchParameters.put( PARAMETER_TO_TIME, "21:00" );
 
         return redirectView( request, VIEW_SEARCH );
     }
