@@ -59,6 +59,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.GroupParams;
 
@@ -472,7 +473,7 @@ public class AppointmentSearchApp extends MVCApplication {
                 strFacetField = entry.getKey();
             }
             if (StringUtils.isNotBlank(strValue)) {
-                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + entry.getKey() + ":" + strValue );
+                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + entry.getKey() + ":" + ClientUtils.escapeQueryChars(strValue) );
                 strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
             }
             query.addFacetField( strFacetField );
