@@ -74,6 +74,7 @@ $(window).load(function () {
 					console.log("data", data);
 					var temp = $(data);
 					var label = '';
+					$("#link_" + point["id"] + "_first_slot").clone().appendTo(temp);
 					$("#link_" + point["id"] + "_full_calendar").clone().appendTo(temp);
 					console.log(temp[0].outerHTML)
 					var final_data = temp[0].outerHTML;

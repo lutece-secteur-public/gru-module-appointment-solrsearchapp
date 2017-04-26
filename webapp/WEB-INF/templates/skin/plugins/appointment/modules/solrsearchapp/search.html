@@ -106,7 +106,7 @@
                 <#if (group.result.list[0].appointmentslot_address_text)??><p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text}</p></#if>
                 <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
                 <#list group.result.list as slot>
-                <div class="row">
+                <div class="row"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>
                     <div class="col-sm-12">${slot.date?datetime} <a href="${slot.url}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.subscribe}</a></div>
                 </div>
                 </#list>
