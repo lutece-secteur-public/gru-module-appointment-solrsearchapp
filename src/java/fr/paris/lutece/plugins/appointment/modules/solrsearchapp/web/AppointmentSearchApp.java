@@ -79,6 +79,8 @@ public class AppointmentSearchApp extends MVCApplication {
 
     private static final long serialVersionUID = 3579388931034541505L;
 
+    private static final int HUGE_INFINITY = 10000000;
+
     private static final String VIEW_SEARCH = "search";
     private static final String ACTION_SEARCH = "search";
     private static final String ACTION_CLEAR = "clear";
@@ -250,6 +252,7 @@ public class AppointmentSearchApp extends MVCApplication {
         }
 
         SolrQuery queryAllPlaces = getCommonFilteredQuery( request );
+        queryAllPlaces.setRows( 0 );
         queryAllPlaces.addFacetPivotField( SOLR_PIVOT_NB_PLACES );
         QueryResponse responseAllPlaces = null;
         try {
@@ -263,6 +266,7 @@ public class AppointmentSearchApp extends MVCApplication {
         }
 
         SolrQuery query = getCommonFilteredQuery( request );
+        query.setRows( HUGE_INFINITY );
         query.addFilterQuery( SOLR_FILTERQUERY_NOT_FULL    );
         query.addSort( SOLR_FIELD_DATE, SolrQuery.ORDER.asc );
         query.set(GroupParams.GROUP, true);
