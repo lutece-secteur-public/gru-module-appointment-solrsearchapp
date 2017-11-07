@@ -34,6 +34,7 @@
 
 package fr.paris.lutece.plugins.appointment.modules.solrsearchapp.web;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap.SimpleImmutableEntry;
@@ -51,7 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.Group;
@@ -246,7 +247,7 @@ public class AppointmentSearchApp extends MVCApplication {
             }
         }
 
-        SolrServer solrServer = SolrServerService.getInstance(  ).getSolrServer(  );
+        SolrClient solrServer = SolrServerService.getInstance(  ).getSolrServer(  );
         if ( solrServer == null ) {
             AppLogService.error ( "AppointmentSolr error, getSolrServer returns null" ); 
         }
@@ -257,7 +258,7 @@ public class AppointmentSearchApp extends MVCApplication {
         QueryResponse responseAllPlaces = null;
         try {
             responseAllPlaces = solrServer.query(queryAllPlaces);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             AppLogService.error ( "AppointmentSolr error, exception during queryAllPlaces", e);
         }
         if ( responseAllPlaces != null ) {
@@ -279,7 +280,7 @@ public class AppointmentSearchApp extends MVCApplication {
         QueryResponse response = null;
         try {
             response = solrServer.query(query);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             AppLogService.error ( "AppointmentSolr error, exception during query", e); 
         }
         if (response != null) {
