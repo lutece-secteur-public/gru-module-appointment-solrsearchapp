@@ -424,7 +424,7 @@ public class AppointmentSearchApp extends MVCApplication {
 
 
     /**
-    * Process the search of the page ideation.
+    * Process the search of the page solrsearchapp.
     * @param request The HTTP request
     * @return The view
     */
@@ -445,7 +445,7 @@ public class AppointmentSearchApp extends MVCApplication {
     }
 
     /**
-    * Process the search of the page ideation.
+    * Process the search of the page solrsearchapp.
     * @param request The HTTP request
     * @return The view
     */
