@@ -75,7 +75,7 @@ import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 
-@Controller( xpageName = "appointmentsearch" , pageTitleI18nKey = "appointment.modules.solr.xpage.appointmentsearch.pageTitle" , pagePathI18nKey = "appointment.modules.solr.xpage.ideation.pagePathLabel" )
+@Controller( xpageName = "appointmentsearch" , pageTitleI18nKey = "module.appointment.solrsearchapp.xpage.appointmentsearch.pageTitle" , pagePathI18nKey = "module.appointment.solrsearchapp.xpage.appointmentsearch.pagePathLabel" )
 public class AppointmentSearchApp extends MVCApplication {
 
     private static final long serialVersionUID = 3579388931034541505L;
