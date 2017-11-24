@@ -98,6 +98,8 @@ public class AppointmentSearchApp extends MVCApplication {
     private static final String PARAMETER_TO_DAY_MINUTE = "to_day_minute";
     private static final String PARAMETER_DAYS_OF_WEEK = "days_of_week";
 
+    private static final String VALUE_FQ_EMPTY = "__EMPTY__";
+
     private static final String DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
     private static final String DATE_FORMAT_INPUT_TIME = "HH:mm";
     private static final String DATE_FORMAT_OUTPUT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -276,6 +278,7 @@ public class AppointmentSearchApp extends MVCApplication {
         query.setFacet( true );
         query.addFacetPivotField( SOLR_PIVOT_NB_FREE_PLACES );
         query.setFacetMinCount( 1 );
+        query.setFacetMissing( true );
 
         QueryResponse response = null;
         try {
@@ -318,6 +321,11 @@ public class AppointmentSearchApp extends MVCApplication {
                     String strCode;
                     String strName;
                     String strCodeName;
+
+                    if (facetFieldCount.getName() == null) {
+                        bFacetAndLabel = false;
+                    }
+
                     if (bFacetAndLabel) {
                         String[] facetNameSplit = facetFieldCount.getName().split("\\|");
                         strCode = facetNameSplit[0];
@@ -327,15 +335,20 @@ public class AppointmentSearchApp extends MVCApplication {
                         strCode = facetFieldCount.getName();
                         strName = facetFieldCount.getName();
                         strCodeName = facetFieldCount.getName();
+                        //Here, we could add a difference between null and "" by using
+                        //another special value (eg VALUE_FQ_MISSING = __MISSING__).
+                        if ( StringUtils.isEmpty( strCode ) ) {
+                            strCode = VALUE_FQ_EMPTY;
+                            strCodeName = VALUE_FQ_EMPTY;
+                            strName = "";
+                        }
                     }
-                    //If there is an empty value in solr,
-                    //we don't display it as a filter
-                    //but still count it in the total.
-                    if ( StringUtils.isNotBlank( strCodeName ) ) {
+                    //Even though we set FacetMinCount to 1, solr gives a result with a count of 0 for the docs missing the field
+                    if (facetFieldCount.getCount() > 0) {
                         referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount() + ")" );
                         bCurrentSearchParameterPresent |= strCode.equals(strSearchParameterValue);
+                        total += facetFieldCount.getCount();
                     }
-                    total += facetFieldCount.getCount();
                 }
 
                 ReferenceItem itemAll = referenceList.get(0);
@@ -482,7 +495,13 @@ public class AppointmentSearchApp extends MVCApplication {
                 strFacetField = entry.getKey();
             }
             if (StringUtils.isNotBlank(strValue)) {
-                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + entry.getKey() + ":" + ClientUtils.escapeQueryChars(strValue) );
+                String strFilterQuery;
+                if ( VALUE_FQ_EMPTY.equals( strValue )) {
+                    strFilterQuery = entry.getKey() + ":" + "\"\" OR (*:* NOT " + entry.getKey()+ ":*)";
+                } else {
+                    strFilterQuery = entry.getKey() + ":" + ClientUtils.escapeQueryChars(strValue);
+                }
+                query.addFilterQuery ( "{!tag=tag" + strFacetField + "}" + strFilterQuery );
                 strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
             }
             query.addFacetField( strFacetField );
