@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -65,6 +66,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.GroupParams;
 
 import fr.paris.lutece.plugins.search.solr.business.SolrServerService;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
@@ -121,13 +123,13 @@ public class AppointmentSearchApp extends MVCApplication {
 
     private static final String[] listDaysCodes = { "1","2","3","4","5","6","7" };
     private static final List<SimpleImmutableEntry<String,String>> listDays = Arrays.asList(
-            new SimpleImmutableEntry<> ( "1", "Lundi" ),
-            new SimpleImmutableEntry<> ( "2", "Mardi" ),
-            new SimpleImmutableEntry<> ( "3", "Mercredi" ),
-            new SimpleImmutableEntry<> ( "4", "Jeudi" ),
-            new SimpleImmutableEntry<> ( "5", "Vendredi" ),
-            new SimpleImmutableEntry<> ( "6", "Samedi" ),
-            new SimpleImmutableEntry<> ( "7", "Dimanche" )
+            new SimpleImmutableEntry<> ( "1", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.1" ),
+            new SimpleImmutableEntry<> ( "2", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.2" ),
+            new SimpleImmutableEntry<> ( "3", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.3" ),
+            new SimpleImmutableEntry<> ( "4", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.4" ),
+            new SimpleImmutableEntry<> ( "5", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.5" ),
+            new SimpleImmutableEntry<> ( "6", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.6" ),
+            new SimpleImmutableEntry<> ( "7", "module.appointment.solrsearchapp.xpage.appointmentsearch.days.7" )
     );
 
     private static final List<SimpleImmutableEntry<String,String>> SEARCH_FIELDS = Arrays.asList(
@@ -241,6 +243,7 @@ public class AppointmentSearchApp extends MVCApplication {
     public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException {
         Map<String, Object> model = new HashMap<String,Object>();
         initSearchParameters();
+        Locale locale = request.getLocale( );
 
         for (SimpleImmutableEntry<String,String> entry: SEARCH_FIELDS) {
             String strValue = getSearchParameter( entry.getKey(), request, _searchParameters );
@@ -293,9 +296,11 @@ public class AppointmentSearchApp extends MVCApplication {
             HashMap<String, Object> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
             model.put( "freePlacesCount", mapFreePlacesCount );
 
+            String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.xpage.appointmentsearch.labelFilterAll", locale );
+            String strLabelEmpty = I18nService.getLocalizedString( "module.appointment.solrsearchapp.xpage.appointmentsearch.labelFilterEmpty", locale );
             for (SimpleImmutableEntry<String,String> entry: FACET_FIELDS) {
                 ReferenceList referenceList = new ReferenceList();
-                referenceList.addItem ( "", "Tous" ); // Count will be set later with the correct value
+                referenceList.addItem ( "", strLabelAll ); // Count will be set later with the correct value
 
                 FacetField facetField = response.getFacetField( entry.getKey() );
                 String strSearchParameter;
@@ -340,7 +345,7 @@ public class AppointmentSearchApp extends MVCApplication {
                         if ( StringUtils.isEmpty( strCode ) ) {
                             strCode = VALUE_FQ_EMPTY;
                             strCodeName = VALUE_FQ_EMPTY;
-                            strName = "";
+                            strName = strLabelEmpty;
                         }
                     }
                     //Even though we set FacetMinCount to 1, solr gives a result with a count of 0 for the docs missing the field
@@ -376,7 +381,7 @@ public class AppointmentSearchApp extends MVCApplication {
 
             for (SimpleImmutableEntry<String,String> day: listDays) {
                 String strDayCode = day.getKey( );
-                String strDayLabel = day.getValue( );
+                String strDayLabel = I18nService.getLocalizedString( day.getValue( ), locale );
                 ReferenceItem item = new ReferenceItem(  );
                 item.setCode( strDayCode );
                 long count;
