@@ -102,8 +102,8 @@
         <div class="row">
             <div class="col-sm-12">
                 <#list groupcommand.values as group>
-                <h3>${group.result.list[0].title}</h3>
-                <#if (group.result.list[0].appointmentslot_address_text)??><p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text}</p></#if>
+                <h3>${group.result.list[0].title?html}</h3>
+                <#if (group.result.list[0].appointmentslot_address_text)??><p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text?html}</p></#if>
                 <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
                 <#list group.result.list as slot>
                 <div class="row"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>
