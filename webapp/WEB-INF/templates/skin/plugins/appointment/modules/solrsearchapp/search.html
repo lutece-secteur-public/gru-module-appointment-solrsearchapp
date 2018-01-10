@@ -18,36 +18,98 @@
     ]>
 	
 <div class="row">
-    <div class="col-sm-12">
-        <form name="search" method="post" action="jsp/site/Portal.jsp">
+	<div class="col-sm-12">
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<h3>Carte des rendez-vous</h3>
+					<p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>#rdv_liste">Afficher la liste des premiers rendez-vous disponibles</a></p>
+					<p class="visible-xs">La carte n'est disponible que pour les écrans de taille tablette ou supérieure</p>
+				</div>
+			</div>
+		
+			<div class="row">
+				<div id="map_col" class="hidden-xs col-sm-12 col-md-12" style="position:relative; display:none;">
+					<div class="row">
+						<div id="map" class="col-xs-12">
+							<div class="leaflet-appointment-search" style="height:520px;"></div>
+							<a class="btn btn-primary btn-sm" id="tgSearchForm" href="#"><i class="fa fa-chevron-left hidden-xs hidden-sm"></i><i class="fa fa-angle-double-down hidden-md hidden-lg"></i><span class="hidden-xs hidden-sm"> #i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.search}</span></a>
+						</div>
+					</div>
+					<div class="row text-center" id="occupancyRate">
+						<div class="col-xs-4">
+							<p style="margin: 5px 0px;">
+								<img src="js/plugins/leaflet/leaflet/images/marker_hole.png"/> : Occupation &lt; 70%
+							</p>
+						</div>
+						<div class="col-xs-4">
+							<p style="margin: 5px 0px;">
+								<img src="js/plugins/leaflet/leaflet/images/marker_hole_yellow.png"/> : Occupation &lt; 90%
+							</p>
+						</div>
+						<div class="col-xs-4">
+							<p style="margin: 5px 0px;">
+								<img src="js/plugins/leaflet/leaflet/images/marker_hole_red.png"/> : Occupation &gt; 90%
+							</p>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-xs-12 col-sm-12 col-md-4" id="searchForm">
+					<div class="form-horizontal">
+						<legend>Recherche simple limitée à</legend>
+						<div class="form-group">
+							<div class="col-xs-12">
+								<form method="post" action="jsp/site/Portal.jsp?page=appointmentsearch<#if category??>&amp;category=${category}</#if>" style="display:inline-block">
+									<input name="to_date" value="${(.now?long + 7 * 86400000)?number_to_date?string("dd/MM/yyyy")}" type="hidden">
+									<button type="submit" class="btn btn-primary btn-sm" name="view_search">7 jours</button>
+								</form>
+								<form method="post" action="jsp/site/Portal.jsp?page=appointmentsearch<#if category??>&amp;category=${category}</#if>" style="display:inline-block">
+									<input name="to_date" value="${(.now?long + 14 * 86400000)?number_to_date?string("dd/MM/yyyy")}" type="hidden">
+									<button type="submit" class="btn btn-primary btn-sm" name="view_search">14 jours</button>
+								</form>
+							</div>
+						</div>
+					</div>
+					
+					<fieldset>
+            <legend id="advanced_search_button">Recherche avancée <i class="fa fa-cogs"></i></legend>
+						<form name="search" method="post" action="jsp/site/Portal.jsp">
             <input name="page" value="appointmentsearch" type="hidden">
-            <div class="row">
-                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.site}</label><@comboWithParams name="site" default_value=site! additionalParameters='class="form-control"' items=items_sites /></div></div>
-                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.category}</label><@comboWithParams name="category" default_value=category! additionalParameters='class="form-control"' items=items_categories /></div></div>
-                <div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.step}</label><@comboWithParams name="form" default_value=form! additionalParameters='class="form-control"' items=items_forms /></div></div>
-            </div>
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="form-group">
-                    <label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.dates}</label>
-                        <div class="row">
-                        <div class="col-sm-6">	
-                            <label for="from_date" class="sr-only">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</span>
-                                <input class="form-control" id="from_date" name="from_date" type="text" value="${from_date!}">
-                            </div>	
-                        </div>	
-                        <div class="col-sm-6"><@comboWithParams name="from_time" default_value=from_time! additionalParameters='class="form-control"' items=items_time /></div>
-                        <div class="clearfix"></div>
-                        <div class="col-sm-6">
-                            <label for="to_date" class="sr-only">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}</span>
-                                <input class="form-control" id="to_date" name="to_date" type="text" value="${to_date!}">
-                            </div>
-                        </div>
-                        <div class="col-sm-6"><@comboWithParams name="to_time" default_value=to_time! additionalParameters='class="form-control"' items=items_time /></div>
+            <!-- <div class="row">
+							<div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.site}</label><@comboWithParams name="site" default_value=site! additionalParameters='class="form-control"' items=items_sites /></div></div>
+							<div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.category}</label><@comboWithParams name="category" default_value=category! additionalParameters='class="form-control"' items=items_categories /></div></div>
+							<div class="col-sm-4"><div class="form-group"><label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.step}</label><@comboWithParams name="form" default_value=form! additionalParameters='class="form-control"' items=items_forms /></div></div>
+            </div> -->
+						<div id="advanced_search">
+							<div class="form-group">
+								<label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.dates}</label>
+									<div class="row" style="margin-bottom:3px;">
+										<div class="col-sm-6">	
+											<label for="from_date" class="sr-only">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</label>
+											<div class="input-group">
+												<span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.from}</span>
+												<input class="form-control" id="from_date" name="from_date" type="text" value="${from_date!}" />
+											</div>	
+										</div>	
+										<div class="col-sm-6">
+											<@comboWithParams name="from_time" default_value=from_time! additionalParameters='class="form-control"' items=items_time />
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-6">
+											<label for="to_date" class="sr-only">
+												#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}
+											</label>
+											<div class="input-group">
+												<span class="input-group-addon">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.to}</span>
+												<input class="form-control" id="to_date" name="to_date" type="text" value="${to_date!}" />
+											</div>
+										</div>
+										<div class="col-sm-6">
+											<@comboWithParams name="to_time" default_value=to_time! additionalParameters='class="form-control"' items=items_time />
+										</div>
+											
 <script src="js/jquery/plugins/ui/jquery-ui.min.js"></script>
 <script src="js/jquery/plugins/ui/ui.datepicker-fr.js"></script>
 <script>
@@ -70,58 +132,100 @@
       }
     });
 </script>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                    <label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.schedule}</label>
-                    <div class="row">
-                        <div class="col-sm-3"><@comboWithParams name="from_day_minute" default_value=from_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
-                        <div class="col-sm-3"><@comboWithParams name="to_day_minute" default_value=to_day_minute! additionalParameters='class="form-control"' items=items_minutes /></div>
-                    </div>
-                </div></div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12"><div class="form-group"><label class="col-sm-12">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.daysOfTheWeek}</label><@checkboxList name="days_of_week" default_values=[] items=items_days_of_week inline=1 /></div></div>
-            </div>
-            <div class="row">
-                <div class="col-sm-1 col-sm-offset-5"><input type="submit" class="btn btn-primary" name="action_search" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.search}"></div>
-                <div class="col-sm-1"><input type="submit" class="btn btn-danger" name="action_clear" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.reset}"></div>
-            </div>
-        </form>
-    </div>
-</div>
+								</div>
+							</div>
 
-<div class="row">
-    <div class="col-sm-5 col-sm-offset-1">
-        <#if (results.values)??>
-        <#list results.values as groupcommand>
-        <div class="row">
-            <div class="col-sm-12">
-                <#list groupcommand.values as group>
-                <h3>${group.result.list[0].title?html}</h3>
-                <#if (group.result.list[0].appointmentslot_address_text)??><p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text?html}</p></#if>
-                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
-                <#list group.result.list as slot>
-                <div class="row"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>
-                    <div class="col-sm-12">${slot.date?datetime} <a href="${slot.url}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.subscribe}</a></div>
-                </div>
-                </#list>
-                <p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s)...</p>
-                <a id="link_${group.groupValue?json_string}_full_calendar" href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
-                <p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} : ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
-                </#list>
-            </div>
-        </div>
+							<div class="form-group">
+								<label>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.schedule}</label>
+									<div class="row">
+										<div class="col-sm-6">
+											<@comboWithParams name="from_day_minute" default_value=from_day_minute! additionalParameters='class="form-control"' items=items_minutes />
+										</div>
+										<div class="col-sm-6">
+											<@comboWithParams name="to_day_minute" default_value=to_day_minute! additionalParameters='class="form-control"' items=items_minutes />
+										</div>
+									</div>
+							</div>
+							<div class="form-group">
+								<label>
+									#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.daysOfTheWeek}
+								</label>
+								<div class="checkbox">
+									<div class="row">
+								<#list items_days_of_week as item>
+									<#if item?size &gt; 4>
+										<#if item?index == 0 || item?index == 4><div class="col-sm-6"></#if>
+									</#if>
+									<#if item.checked >
+										<label for="document_type" class="col-xs-12">
+											<input checked class="checkbox" type="checkbox" name="days_of_week" value="${item.code}" />
+											&nbsp;${item.name}
+										</label>
+									<#else>
+										<label for="document_type" class="col-xs-12">
+											<input class="checkbox" type="checkbox" name="days_of_week" value="${item.code}" />
+											&nbsp;${item.name}
+										</label>
+									</#if>
+									<#if item?size &gt; 4>
+										<#if item?index == 3 || item?index == 6></div></#if>
+									</#if>
+								</#list>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<button type="submit" class="btn btn-primary btn-sm" name="action_search" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.search}">
+									#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.search}
+								</button>
+								<button type="submit" class="btn btn-danger btn-sm" name="action_clear" value="#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.reset}">
+									#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.reset}
+								</button>
+							</div>
+						</div>
+        </form>
+			</fieldset>
+    </div>
+	</div>
+
+	<div class="row">
+    <div class="col-xs-12">
+			<h3 id="rdv_liste">Premiers rendez-vous disponibles</h3>
+		</div>
+		<div class="col-xs-12">
+			<#if (results.values)??>
+			<#list results.values as groupcommand>
+				<div class="nextAvailableAppointments">
+					<#list groupcommand.values as group>
+						<div>
+							<div><h4>${group.result.list[0].title?html}</h4></div>
+							<div>
+								<div>
+									<#if (group.result.list[0].appointmentslot_address_text)??>
+										<p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text?html}</p>
+									</#if>
+									<p class="text-primary">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
+									<ul>
+										<#list group.result.list as slot>
+										<li<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>
+											${slot.date?datetime} <a href="${slot.url}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.subscribe}</a>
+										</li>
+										</#list>
+									</ul>
+									<p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s).</p>
+									<p><span class="text-primary">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
+								</div>
+								<div>
+									<a id="link_${group.groupValue?json_string}_full_calendar" class="btn btn-primary btn-sm" href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
+								</div>
+							</div>
+						</div>
+					</#list>
+				</div>
         </#list>
         </#if>
     </div>
-    <div class="col-sm-5">
-        <div id="map" class="leaflet-appointment-search" style="height:500px;"></div>
-    </div>
+</div>
 </div>
 
 <script>
@@ -157,4 +261,34 @@
         </#list>
         </#if>
     }
+		
+	$(document).ready(function() {
+	$("#map_col").show();
+	
+	$("#searchForm").hide();
+  doDisplaySearchForm();
+	/*$("#advanced_search").hide();*/
+	
+	$("#advanced_search_button").click(function () {
+		$("#advanced_search").toggle();
+	});
+	
+
+	$("#tgSearchForm").click(function () {
+		doDisplaySearchForm();
+		return false;
+	});
+
+	function doDisplaySearchForm(){
+		$("#searchForm").toggle();
+		$("#map_col").toggleClass("col-md-8").toggleClass("col-md-12");
+		$("#tgSearchForm > i.hidden-xs").toggleClass("fa fa-chevron-left").toggleClass("fa fa-chevron-right");
+		$("#tgSearchForm > i.hidden-md").toggleClass("fa fa-angle-double-down").toggleClass("fa fa-angle-double-up");
+		$("#tgSearchForm > span.hidden-xs").toggleClass("hidden");
+        if ( typeof(lutece_global_leaflet_map) != 'undefined' ) {
+            lutece_global_leaflet_map.invalidateSize(true);
+        }
+
+	}
+	});
 </script>

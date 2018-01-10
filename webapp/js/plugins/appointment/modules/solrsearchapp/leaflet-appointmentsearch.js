@@ -43,7 +43,7 @@ $(window).load(function () {
     var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});
 
-    var markers = new L.MarkerClusterGroup();
+    var markers = new L.LayerGroup();
 
     for (var i = 0; i < points.length; i++) {
 
@@ -82,7 +82,8 @@ $(window).load(function () {
 					popup.setContent(final_data);
                     popup.update();
                 }).fail(function() {
-                    map.closePopup();
+									popup.setContent("<p>Resource unavailable</p><p>" + point["url_base"] + "</p>");
+									popup.update();
                 });
             };
         })(points[i]));
