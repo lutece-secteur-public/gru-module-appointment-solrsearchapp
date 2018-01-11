@@ -204,16 +204,16 @@
 									<#if (group.result.list[0].appointmentslot_address_text)??>
 										<p>#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.address} : ${group.result.list[0].appointmentslot_address_text?html}</p>
 									</#if>
-									<p class="text-primary">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
+									<p class="emphasize_default">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nextAvailableSlots} :</p>
 									<ul>
-										<#list group.result.list as slot>
-										<li<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>
-											${slot.date?datetime} <a href="${slot.url}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.subscribe}</a>
+									<#list group.result.list as slot>
+										<li>
+											<a href="${slot.url}"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>${slot.date?datetime} <i class="fa fa-external-link" aria-hidden="true"></i></a>
 										</li>
-										</#list>
+									</#list>
 									</ul>
 									<p>${group.result.numFound - group.result.list?size} autre(s) horaire(s) disponible(s).</p>
-									<p><span class="text-primary">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
+									<p><span class="emphasize_default">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
 								</div>
 								<div>
 									<a id="link_${group.groupValue?json_string}_full_calendar" class="btn btn-primary btn-sm" href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.xpage.appointmentsearch.completeSchedule}</a>
