@@ -77,7 +77,7 @@ import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 
-@Controller( xpageName = "appointmentsearch", pageTitleI18nKey = "module.appointment.solrsearchapp.xpage.appointmentsearch.pageTitle", pagePathI18nKey = "module.appointment.solrsearchapp.xpage.appointmentsearch.pagePathLabel" )
+@Controller( xpageName = "appointmentsearch", pageTitleI18nKey = "module.appointment.solrsearchapp.pageTitle", pagePathI18nKey = "module.appointment.solrsearchapp.pagePathLabel" )
 public class AppointmentSearchApp extends MVCApplication
 {
 
@@ -126,13 +126,13 @@ public class AppointmentSearchApp extends MVCApplication
             "1", "2", "3", "4", "5", "6", "7"
     };
     private static final List<SimpleImmutableEntry<String, String>> listDays = Arrays.asList( new SimpleImmutableEntry<>( "1",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.1" ), new SimpleImmutableEntry<>( "2",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.2" ), new SimpleImmutableEntry<>( "3",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.3" ), new SimpleImmutableEntry<>( "4",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.4" ), new SimpleImmutableEntry<>( "5",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.5" ), new SimpleImmutableEntry<>( "6",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.6" ), new SimpleImmutableEntry<>( "7",
-            "module.appointment.solrsearchapp.xpage.appointmentsearch.days.7" ) );
+            "module.appointment.solrsearchapp.days.1" ), new SimpleImmutableEntry<>( "2",
+            "module.appointment.solrsearchapp.days.2" ), new SimpleImmutableEntry<>( "3",
+            "module.appointment.solrsearchapp.days.3" ), new SimpleImmutableEntry<>( "4",
+            "module.appointment.solrsearchapp.days.4" ), new SimpleImmutableEntry<>( "5",
+            "module.appointment.solrsearchapp.days.5" ), new SimpleImmutableEntry<>( "6",
+            "module.appointment.solrsearchapp.days.6" ), new SimpleImmutableEntry<>( "7",
+            "module.appointment.solrsearchapp.days.7" ) );
 
     private static final List<SimpleImmutableEntry<String, String>> SEARCH_FIELDS = Arrays.asList( new SimpleImmutableEntry<>( PARAMETER_SITE, MARK_SITE ),
             new SimpleImmutableEntry<>( PARAMETER_CATEGORY, MARK_CATEGORIE ), new SimpleImmutableEntry<>( PARAMETER_FORM, MARK_FORM ),
@@ -317,8 +317,8 @@ public class AppointmentSearchApp extends MVCApplication
             HashMap<String, Object> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
             model.put( "freePlacesCount", mapFreePlacesCount );
 
-            String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.xpage.appointmentsearch.labelFilterAll", locale );
-            String strLabelEmpty = I18nService.getLocalizedString( "module.appointment.solrsearchapp.xpage.appointmentsearch.labelFilterEmpty", locale );
+            String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterAll", locale );
+            String strLabelEmpty = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterEmpty", locale );
             for ( SimpleImmutableEntry<String, String> entry : FACET_FIELDS )
             {
                 ReferenceList referenceList = new ReferenceList( );

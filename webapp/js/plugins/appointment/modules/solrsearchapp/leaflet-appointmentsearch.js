@@ -1,3 +1,4 @@
+var map;
 $(window).load(function () {
     L.NumberedDivIcon = L.Icon.extend({
         options: {
@@ -33,7 +34,7 @@ $(window).load(function () {
         }
     });
 
-    var map = L.map('map').setView([48.85632, 2.33272], 12);
+    map = L.map('map').setView([48.85632, 2.33272], 12);
     var points = window.lutece_appointment_solrsearchapp_points;
     var freePlaces = window.lutece_appointment_solrsearchapp_freePlaces;
 
