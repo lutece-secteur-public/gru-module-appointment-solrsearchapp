@@ -69,7 +69,7 @@
                     </div>
                     <fieldset>
                         <legend id="advanced_search_button">#i18n{module.appointment.solrsearchapp.advancedSearch} <i class="fa fa-cogs"></i></legend>
-                        <form name="search" method="post" action="jsp/site/Portal.jsp">
+                        <form name="search" method="post" action="jsp/site/Portal.jsp?page=appointmentsearch<#if category??>&amp;category=${category}</#if>">
                             <input name="page" value="appointmentsearch" type="hidden">
                             <div id="advanced_search">
                                 <div class="form-group">
@@ -201,7 +201,6 @@
 <script>
     $( "#from_date" ).datepicker({
         regional: "fr",    
-        defaultDate: "+1w",
         changeMonth: true,
         changeYear: true,
         onClose: function( selectedDate ) {
@@ -210,7 +209,6 @@
     }).datepicker(  );
     $( "#to_date" ).datepicker({
       regional: "fr",    
-      defaultDate: "+1w",
       changeMonth: true,
       changeYear: true,
       onClose: function( selectedDate ) {
