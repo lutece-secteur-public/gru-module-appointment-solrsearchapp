@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,8 +53,8 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.Group;
@@ -126,13 +127,11 @@ public class AppointmentSearchApp extends MVCApplication
             "1", "2", "3", "4", "5", "6", "7"
     };
     private static final List<SimpleImmutableEntry<String, String>> listDays = Arrays.asList( new SimpleImmutableEntry<>( "1",
-            "module.appointment.solrsearchapp.days.1" ), new SimpleImmutableEntry<>( "2",
-            "module.appointment.solrsearchapp.days.2" ), new SimpleImmutableEntry<>( "3",
-            "module.appointment.solrsearchapp.days.3" ), new SimpleImmutableEntry<>( "4",
-            "module.appointment.solrsearchapp.days.4" ), new SimpleImmutableEntry<>( "5",
-            "module.appointment.solrsearchapp.days.5" ), new SimpleImmutableEntry<>( "6",
-            "module.appointment.solrsearchapp.days.6" ), new SimpleImmutableEntry<>( "7",
-            "module.appointment.solrsearchapp.days.7" ) );
+            "module.appointment.solrsearchapp.days.1" ), new SimpleImmutableEntry<>( "2", "module.appointment.solrsearchapp.days.2" ),
+            new SimpleImmutableEntry<>( "3", "module.appointment.solrsearchapp.days.3" ), new SimpleImmutableEntry<>( "4",
+                    "module.appointment.solrsearchapp.days.4" ), new SimpleImmutableEntry<>( "5", "module.appointment.solrsearchapp.days.5" ),
+            new SimpleImmutableEntry<>( "6", "module.appointment.solrsearchapp.days.6" ), new SimpleImmutableEntry<>( "7",
+                    "module.appointment.solrsearchapp.days.7" ) );
 
     private static final List<SimpleImmutableEntry<String, String>> SEARCH_FIELDS = Arrays.asList( new SimpleImmutableEntry<>( PARAMETER_SITE, MARK_SITE ),
             new SimpleImmutableEntry<>( PARAMETER_CATEGORY, MARK_CATEGORIE ), new SimpleImmutableEntry<>( PARAMETER_FORM, MARK_FORM ),
@@ -152,7 +151,6 @@ public class AppointmentSearchApp extends MVCApplication
     private static final String SOLR_FIELD_TYPE = "type";
     private static final String SOLR_FIELD_SITE = "site";
     private static final String SOLR_FIELD_CATEGORY = "categorie";
-    private static final String SOLR_FIELD_UID = "uid";
     private static final String SOLR_FIELD_FORM_UID_TITLE = "form_id_title_string";
     private static final String SOLR_FIELD_FORM_UID = "uid_form_string";
     private static final String SOLR_FIELD_DATE = "date";
@@ -162,7 +160,6 @@ public class AppointmentSearchApp extends MVCApplication
     private static final String SOLR_FIELD_NB_PLACES = "slot_nb_places_long";
     private static final String SOLR_PIVOT_NB_FREE_PLACES = SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_FREE_PLACES;
     private static final String SOLR_PIVOT_NB_PLACES = SOLR_FIELD_FORM_UID + "," + SOLR_FIELD_NB_PLACES;
-    private static final String SOLR_TYPE_APPOINTMENT = "appointment";
     private static final String SOLR_TYPE_APPOINTMENT_SLOT = "appointment-slot";
 
     private static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Arrays.asList(
@@ -322,7 +319,9 @@ public class AppointmentSearchApp extends MVCApplication
             for ( SimpleImmutableEntry<String, String> entry : FACET_FIELDS )
             {
                 ReferenceList referenceList = new ReferenceList( );
-                referenceList.addItem( "", strLabelAll ); // Count will be set later with the correct value
+                referenceList.addItem( "", strLabelAll ); // Count will be set
+                                                          // later with the
+                                                          // correct value
 
                 FacetField facetField = response.getFacetField( entry.getKey( ) );
                 String strSearchParameter;
@@ -372,8 +371,10 @@ public class AppointmentSearchApp extends MVCApplication
                         strCode = facetFieldCount.getName( );
                         strName = facetFieldCount.getName( );
                         strCodeName = facetFieldCount.getName( );
-                        // Here, we could add a difference between null and "" by using
-                        // another special value (eg VALUE_FQ_MISSING = __MISSING__).
+                        // Here, we could add a difference between null and ""
+                        // by using
+                        // another special value (eg VALUE_FQ_MISSING =
+                        // __MISSING__).
                         if ( StringUtils.isEmpty( strCode ) )
                         {
                             strCode = VALUE_FQ_EMPTY;
@@ -381,7 +382,8 @@ public class AppointmentSearchApp extends MVCApplication
                             strName = strLabelEmpty;
                         }
                     }
-                    // Even though we set FacetMinCount to 1, solr gives a result with a count of 0 for the docs missing the field
+                    // Even though we set FacetMinCount to 1, solr gives a
+                    // result with a count of 0 for the docs missing the field
                     if ( facetFieldCount.getCount( ) > 0 )
                     {
                         referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount( ) + ")" );
@@ -442,9 +444,11 @@ public class AppointmentSearchApp extends MVCApplication
     }
 
     // SolrDocumentList extends ArrayList and has extra methods
-    // But in Freemarker, we can't have access to those extra methods (like getNumFound())
+    // But in Freemarker, we can't have access to those extra methods (like
+    // getNumFound())
     // So unwrap everything.
-    // We could use ?api in freemarker version 2.3.22 but we are stuck with 2.3.21.
+    // We could use ?api in freemarker version 2.3.22 but we are stuck with
+    // 2.3.21.
     private Map<String, Object> wrapGroupResponse( GroupResponse groupResponse )
     {
         Map<String, Object> result = new HashMap<>( );
@@ -511,8 +515,10 @@ public class AppointmentSearchApp extends MVCApplication
         }
 
         _searchMultiParameters.put( PARAMETER_DAYS_OF_WEEK, request.getParameterValues( PARAMETER_DAYS_OF_WEEK ) );
-
-        return redirectView( request, VIEW_SEARCH );
+        // Need to put the category in the url
+        LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<String, String>( );
+        additionalParameters.put( PARAMETER_CATEGORY, request.getParameter( PARAMETER_CATEGORY ) );
+        return redirect( request, VIEW_SEARCH, additionalParameters );
     }
 
     /**
@@ -534,7 +540,10 @@ public class AppointmentSearchApp extends MVCApplication
         _searchParameters.put( PARAMETER_FROM_TIME, "06:00" );
         _searchParameters.put( PARAMETER_TO_TIME, "21:00" );
 
-        return redirectView( request, VIEW_SEARCH );
+        // Need to put the category in the url
+        LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<String, String>( );
+        additionalParameters.put( PARAMETER_CATEGORY, request.getParameter( PARAMETER_CATEGORY ) );
+        return redirect( request, VIEW_SEARCH, additionalParameters );
     }
 
     private SolrQuery getCommonFilteredQuery( HttpServletRequest request )
