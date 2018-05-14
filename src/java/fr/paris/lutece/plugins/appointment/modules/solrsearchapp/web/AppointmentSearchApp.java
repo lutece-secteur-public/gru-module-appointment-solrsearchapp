@@ -306,6 +306,10 @@ public class AppointmentSearchApp extends MVCApplication
             {
                 searchDaysChecked.addAll( Arrays.asList( searchDays ) );
             }
+            if ( searchDaysChecked.isEmpty( ) )
+            {
+                searchDaysChecked.addAll( Arrays.asList( Utilities.listDaysCodes ) );
+            }
             Map<String, FacetField.Count> searchDaysCounts = new HashMap<>( );
             for ( FacetField.Count facetFieldCount : facetField.getValues( ) )
             {
