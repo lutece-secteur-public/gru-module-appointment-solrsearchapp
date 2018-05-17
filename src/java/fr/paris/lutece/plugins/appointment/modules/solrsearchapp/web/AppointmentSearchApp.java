@@ -64,6 +64,7 @@ import org.apache.solr.common.params.GroupParams;
 import fr.paris.lutece.plugins.appointment.modules.solrsearchapp.service.SolrQueryService;
 import fr.paris.lutece.plugins.appointment.modules.solrsearchapp.service.Utilities;
 import fr.paris.lutece.plugins.search.solr.business.SolrServerService;
+import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -83,6 +84,8 @@ public class AppointmentSearchApp extends MVCApplication
 
     private static final int HUGE_INFINITY = 10000000;
 
+    private static final String ACCESS_DENIED = "module.appointment.solrsearchapp.accessDenied";
+    
     private static final String VIEW_SEARCH = "search";
     private static final String ACTION_SEARCH = "search";
     private static final String ACTION_CLEAR = "clear";
@@ -137,10 +140,15 @@ public class AppointmentSearchApp extends MVCApplication
      *            The HTTP request
      * @return The view
      * @throws SiteMessageException
+     * @throws AccessDeniedException 
      */
     @View( value = VIEW_SEARCH, defaultView = true )
-    public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException
+    public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException, AccessDeniedException
     {
+    	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
+    	if (StringUtils.isEmpty(category)){    		
+    		throw new AccessDeniedException(I18nService.getLocalizedString( ACCESS_DENIED, getLocale(request) ));
+    	}
         Map<String, Object> model = new HashMap<String, Object>( );
         initSearchParameters( );
         Locale locale = request.getLocale( );
