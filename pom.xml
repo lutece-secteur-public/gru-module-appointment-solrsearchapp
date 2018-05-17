@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-appointment-solrsearchapp</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.3-SNAPSHOT</version>
     <name>Lutece appointment solrsearchapp module</name>
 
     <repositories>

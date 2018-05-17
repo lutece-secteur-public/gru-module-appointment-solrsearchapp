@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -183,7 +185,7 @@ public class AppointmentSearchApp extends MVCApplication
         }
         if ( responseAllPlaces != null )
         {
-            HashMap<String, Object> mapPlacesCount = getPlacesCount( responseAllPlaces, SOLR_PIVOT_NB_PLACES );
+            HashMap<String, Integer> mapPlacesCount = getPlacesCount( responseAllPlaces, SOLR_PIVOT_NB_PLACES );
             model.put( "totalPlacesCount", mapPlacesCount );
         }
 
@@ -211,9 +213,13 @@ public class AppointmentSearchApp extends MVCApplication
         if ( response != null )
         {
             GroupResponse groupResponse = response.getGroupResponse( );
-            model.put( MARK_RESULTS, wrapGroupResponse( groupResponse ) );
+            HashMap<String, Integer> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
 
-            HashMap<String, Object> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
+            Map<String, Object> wrapGroupResponse = wrapGroupResponse( groupResponse );
+            sortResponses( wrapGroupResponse, mapFreePlacesCount );
+
+            model.put( MARK_RESULTS, wrapGroupResponse );
+
             model.put( "freePlacesCount", mapFreePlacesCount );
 
             String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterAll", locale );
@@ -314,6 +320,10 @@ public class AppointmentSearchApp extends MVCApplication
             {
                 searchDaysChecked.addAll( Arrays.asList( searchDays ) );
             }
+            if ( searchDaysChecked.isEmpty( ) )
+            {
+                searchDaysChecked.addAll( Arrays.asList( Utilities.listDaysCodes ) );
+            }
             Map<String, FacetField.Count> searchDaysCounts = new HashMap<>( );
             for ( FacetField.Count facetFieldCount : facetField.getValues( ) )
             {
@@ -343,6 +353,42 @@ public class AppointmentSearchApp extends MVCApplication
             model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
         }
         return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+    }
+
+    // Getting the types right for all the maps and lists is just to tedious
+    // Working directly on the solr types would make it easier, but I don't
+    // want to mutate their objects directly in case it breaks their code.
+    @SuppressWarnings( {
+            "rawtypes", "unchecked"
+    } )
+    private void sortResponses( Map<String, Object> wrapGroupResponse, HashMap<String, Integer> mapFreePlacesCount )
+    {
+        List<Object> listGroupCommands = (List) wrapGroupResponse.get( "values" );
+        List<Map> listGroups = ( (List) ( (Map) listGroupCommands.get( 0 ) ).get( "values" ) );
+
+        listGroups.sort( Comparator.comparing( group -> {
+            Map firstResult = getFirstResult( group );
+            return (Date) firstResult.get( "date" );
+        } ).thenComparing( group -> {
+            String code = (String) ( (Map) group ).get( "groupValue" );
+            return mapFreePlacesCount.get( code );
+        }, Comparator.reverseOrder( ) ).thenComparing( group -> {
+            Map firstResult = getFirstResult( group );
+            return (String) firstResult.get( "title" );
+        } ) );
+    }
+
+    // Getting the types right for all the maps and lists is just to tedious
+    // Working directly on the solr types would make it easier, but I don't
+    // want to mutate their objects directly in case it breaks their code.
+    @SuppressWarnings( "rawtypes" )
+    private Map getFirstResult( Object group )
+    {
+        Map mapGroup = (Map) group;
+        Map mapResult = (Map) mapGroup.get( "result" );
+        List listResult = (List) mapResult.get( "list" );
+        Map firstResult = (Map) listResult.get( 0 );
+        return firstResult;
     }
 
     /**
@@ -397,9 +443,9 @@ public class AppointmentSearchApp extends MVCApplication
         return redirect( request, VIEW_SEARCH, additionalParameters );
     }
 
-    private HashMap<String, Object> getPlacesCount( QueryResponse response, String strPivotName )
+    private HashMap<String, Integer> getPlacesCount( QueryResponse response, String strPivotName )
     {
-        HashMap<String, Object> mapPlacesCount = new HashMap<>( );
+        HashMap<String, Integer> mapPlacesCount = new HashMap<>( );
         List<PivotField> listPivotField = response.getFacetPivot( ).get( strPivotName );
         for ( PivotField pivotFieldUid : listPivotField )
         {

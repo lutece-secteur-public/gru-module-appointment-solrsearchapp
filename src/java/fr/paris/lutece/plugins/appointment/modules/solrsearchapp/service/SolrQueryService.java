@@ -118,7 +118,7 @@ public class SolrQueryService
             localDateTimeTo = null;
         }
         String strSolrDateTimeTo = "*";
-        if ( localDateTimeFrom != null )
+        if ( localDateTimeTo != null )
         {
             strSolrDateTimeTo = localDateTimeTo.format( Utilities.outputFormatter );
         }
