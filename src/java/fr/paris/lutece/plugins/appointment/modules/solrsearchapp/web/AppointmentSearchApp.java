@@ -145,13 +145,15 @@ public class AppointmentSearchApp extends MVCApplication
      * @throws AccessDeniedException 
      */
     @View( value = VIEW_SEARCH, defaultView = true )
-    public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException, AccessDeniedException
+    public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException
     {
-    	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
-    	if (StringUtils.isEmpty(category)){    		
-    		throw new AccessDeniedException(I18nService.getLocalizedString( ACCESS_DENIED, getLocale(request) ));
-    	}
         Map<String, Object> model = new HashMap<String, Object>( );
+    	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
+    	if (StringUtils.isEmpty(category)){  
+    		addInfo(ACCESS_DENIED, getLocale( request ));
+    		model = getModel();
+    		return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+    	}
         initSearchParameters( );
         Locale locale = request.getLocale( );
 
