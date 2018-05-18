@@ -150,7 +150,7 @@ public class AppointmentSearchApp extends MVCApplication
         Map<String, Object> model = new HashMap<String, Object>( );
     	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
     	if (StringUtils.isEmpty(category)){  
-    		addInfo(ACCESS_DENIED, getLocale( request ));
+    		addError(ACCESS_DENIED, getLocale( request ));
     		model = getModel();
     		return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
     	}
