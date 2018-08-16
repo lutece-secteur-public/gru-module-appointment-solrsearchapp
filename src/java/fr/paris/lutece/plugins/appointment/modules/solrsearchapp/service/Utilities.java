@@ -41,8 +41,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
 public final class Utilities
 {
+    public static final String PROPERTY_DATE_FORMAT_INPUT_DATE = "appointment-solrsearchapp.app.date.format";
 
     public static final String PARAMETER_DAYS_OF_WEEK = "days_of_week";
     public static final String PARAMETER_FROM_DATE = "from_date";
@@ -51,7 +54,9 @@ public final class Utilities
     public static final String PARAMETER_TO_TIME = "to_time";
     public static final String PARAMETER_FROM_DAY_MINUTE = "from_day_minute";
     public static final String PARAMETER_TO_DAY_MINUTE = "to_day_minute";
-    public static final String DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
+    public static final String DEFAULT_DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
+    //Bad because it will not reload on property reload, but then caching DateTimeFormatter becomes a pain..
+    public static final String DATE_FORMAT_INPUT_DATE = AppPropertiesService.getProperty( PROPERTY_DATE_FORMAT_INPUT_DATE, DEFAULT_DATE_FORMAT_INPUT_DATE );
     public static final String DATE_FORMAT_INPUT_TIME = "HH:mm";
     public static final String FORMAT_INPUT_DATE = DATE_FORMAT_INPUT_DATE + " " + DATE_FORMAT_INPUT_TIME;
     public static final DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern( FORMAT_INPUT_DATE );
