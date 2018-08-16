@@ -69,6 +69,7 @@ import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
@@ -84,6 +85,9 @@ public class AppointmentSearchApp extends MVCApplication
     private static final long serialVersionUID = 3579388931034541505L;
 
     private static final int HUGE_INFINITY = 10000000;
+
+    private static final String PROPERTY_CATEGORY_REQUIRED = "appointment-solrsearchapp.app.category.required";
+    private static final boolean CATEGORY_REQUIRED_DEFAULT = false;
 
     private static final String ACCESS_DENIED = "module.appointment.solrsearchapp.accessDenied";
     
@@ -148,7 +152,7 @@ public class AppointmentSearchApp extends MVCApplication
     {
         Map<String, Object> model = new HashMap<String, Object>( );
     	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
-    	if (StringUtils.isEmpty(category)){  
+    	if ( AppPropertiesService.getPropertyBoolean( PROPERTY_CATEGORY_REQUIRED, CATEGORY_REQUIRED_DEFAULT ) && StringUtils.isEmpty(category)){  
     		addError(ACCESS_DENIED, getLocale( request ));
     		model = getModel();
     		return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
