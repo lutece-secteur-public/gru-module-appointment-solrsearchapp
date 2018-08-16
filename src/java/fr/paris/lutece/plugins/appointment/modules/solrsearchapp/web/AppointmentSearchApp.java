@@ -90,7 +90,7 @@ public class AppointmentSearchApp extends MVCApplication
     private static final boolean CATEGORY_REQUIRED_DEFAULT = false;
 
     private static final String ACCESS_DENIED = "module.appointment.solrsearchapp.accessDenied";
-    
+
     private static final String VIEW_SEARCH = "search";
     private static final String ACTION_SEARCH = "search";
     private static final String ACTION_CLEAR = "clear";
@@ -145,18 +145,19 @@ public class AppointmentSearchApp extends MVCApplication
      *            The HTTP request
      * @return The view
      * @throws SiteMessageException
-     * @throws AccessDeniedException 
+     * @throws AccessDeniedException
      */
     @View( value = VIEW_SEARCH, defaultView = true )
     public XPage viewSearch( HttpServletRequest request ) throws SiteMessageException
     {
         Map<String, Object> model = new HashMap<String, Object>( );
-    	String category = request.getParameter(Utilities.PARAMETER_CATEGORY);
-    	if ( AppPropertiesService.getPropertyBoolean( PROPERTY_CATEGORY_REQUIRED, CATEGORY_REQUIRED_DEFAULT ) && StringUtils.isEmpty(category)){  
-    		addError(ACCESS_DENIED, getLocale( request ));
-    		model = getModel();
-    		return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
-    	}
+        String category = request.getParameter( Utilities.PARAMETER_CATEGORY );
+        if ( AppPropertiesService.getPropertyBoolean( PROPERTY_CATEGORY_REQUIRED, CATEGORY_REQUIRED_DEFAULT ) && StringUtils.isEmpty( category ) )
+        {
+            addError( ACCESS_DENIED, getLocale( request ) );
+            model = getModel( );
+            return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+        }
         initSearchParameters( );
         Locale locale = request.getLocale( );
 
