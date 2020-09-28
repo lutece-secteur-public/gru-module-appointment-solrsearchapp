@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2020, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -172,12 +172,14 @@ public class SolrQueryService
         return query;
     }
 
-    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Arrays.asList( new SimpleImmutableEntry<>( SOLR_FIELD_SITE,
-            Utilities.PARAMETER_SITE ), new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ), new SimpleImmutableEntry<>(
-            SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) );
+    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Arrays.asList(
+            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.PARAMETER_SITE ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) );
 
-    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Arrays.asList( new SimpleImmutableEntry<>( SOLR_FIELD_SITE,
-            Utilities.MARK_ITEM_SITES ), new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ), new SimpleImmutableEntry<>(
-            SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) );
+    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Arrays.asList(
+            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.MARK_ITEM_SITES ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) );
 
 }

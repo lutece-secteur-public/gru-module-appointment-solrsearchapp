@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2020, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,12 +113,13 @@ public class AppointmentSearchApp extends MVCApplication
     private static final String MARK_TO_DAY_MINUTE = "to_day_minute";
     private static final String MARK_RESULTS = "results";
 
-    private static final List<SimpleImmutableEntry<String, String>> SEARCH_FIELDS = Arrays.asList( new SimpleImmutableEntry<>( Utilities.PARAMETER_SITE,
-            MARK_SITE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_CATEGORY, MARK_CATEGORIE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_FORM,
-            MARK_FORM ), new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DATE, MARK_FROM_DATE ), new SimpleImmutableEntry<>(
-            Utilities.PARAMETER_FROM_TIME, MARK_FROM_TIME ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DATE, MARK_TO_DATE ),
-            new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_TIME, MARK_TO_TIME ), new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DAY_MINUTE,
-                    MARK_FROM_DAY_MINUTE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DAY_MINUTE, MARK_TO_DAY_MINUTE ) );
+    private static final List<SimpleImmutableEntry<String, String>> SEARCH_FIELDS = Arrays.asList(
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_SITE, MARK_SITE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_CATEGORY, MARK_CATEGORIE ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_FORM, MARK_FORM ), new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DATE, MARK_FROM_DATE ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_TIME, MARK_FROM_TIME ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DATE, MARK_TO_DATE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_TIME, MARK_TO_TIME ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DAY_MINUTE, MARK_FROM_DAY_MINUTE ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DAY_MINUTE, MARK_TO_DAY_MINUTE ) );
 
     private static final int SOLR_GROUP_LIMIT = 3;
     private Map<String, String> _searchParameters;
