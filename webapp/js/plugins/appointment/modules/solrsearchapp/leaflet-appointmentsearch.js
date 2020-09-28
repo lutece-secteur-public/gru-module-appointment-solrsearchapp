@@ -9,10 +9,6 @@ $(window).load(function () {
         iconSize: new L.Point(25, 41),
             iconAnchor: new L.Point(13, 41),
             popupAnchor: new L.Point(0, -33),
-            /*
-            iconAnchor: (Point)
-            popupAnchor: (Point)
-            */
             className: 'leaflet-div-icon'
         },
 
