@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2020, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public final class Utilities
     public static final String PARAMETER_FROM_DAY_MINUTE = "from_day_minute";
     public static final String PARAMETER_TO_DAY_MINUTE = "to_day_minute";
     public static final String DEFAULT_DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
-    //Bad because it will not reload on property reload, but then caching DateTimeFormatter becomes a pain..
+    // Bad because it will not reload on property reload, but then caching DateTimeFormatter becomes a pain..
     public static final String DATE_FORMAT_INPUT_DATE = AppPropertiesService.getProperty( PROPERTY_DATE_FORMAT_INPUT_DATE, DEFAULT_DATE_FORMAT_INPUT_DATE );
     public static final String DATE_FORMAT_INPUT_TIME = "HH:mm";
     public static final String FORMAT_INPUT_DATE = DATE_FORMAT_INPUT_DATE + " " + DATE_FORMAT_INPUT_TIME;
@@ -74,12 +74,14 @@ public final class Utilities
     public static final String [ ] listDaysCodes = {
             "1", "2", "3", "4", "5", "6", "7"
     };
-    public static final List<SimpleImmutableEntry<String, String>> listDays = Arrays.asList( new SimpleImmutableEntry<>( "1",
-            "module.appointment.solrsearchapp.days.1" ), new SimpleImmutableEntry<>( "2", "module.appointment.solrsearchapp.days.2" ),
-            new SimpleImmutableEntry<>( "3", "module.appointment.solrsearchapp.days.3" ), new SimpleImmutableEntry<>( "4",
-                    "module.appointment.solrsearchapp.days.4" ), new SimpleImmutableEntry<>( "5", "module.appointment.solrsearchapp.days.5" ),
-            new SimpleImmutableEntry<>( "6", "module.appointment.solrsearchapp.days.6" ), new SimpleImmutableEntry<>( "7",
-                    "module.appointment.solrsearchapp.days.7" ) );
+    public static final List<SimpleImmutableEntry<String, String>> listDays = Arrays.asList(
+            new SimpleImmutableEntry<>( "1", "module.appointment.solrsearchapp.days.1" ),
+            new SimpleImmutableEntry<>( "2", "module.appointment.solrsearchapp.days.2" ),
+            new SimpleImmutableEntry<>( "3", "module.appointment.solrsearchapp.days.3" ),
+            new SimpleImmutableEntry<>( "4", "module.appointment.solrsearchapp.days.4" ),
+            new SimpleImmutableEntry<>( "5", "module.appointment.solrsearchapp.days.5" ),
+            new SimpleImmutableEntry<>( "6", "module.appointment.solrsearchapp.days.6" ),
+            new SimpleImmutableEntry<>( "7", "module.appointment.solrsearchapp.days.7" ) );
 
     public static String getSearchParameterValue( String parameter, HttpServletRequest request, Map<String, String> savedSearchParameters )
     {
