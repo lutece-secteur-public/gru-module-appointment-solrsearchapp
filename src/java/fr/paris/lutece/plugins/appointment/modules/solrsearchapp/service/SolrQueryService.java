@@ -37,18 +37,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.util.ClientUtils;
 
 public class SolrQueryService
 {
-
     private static final String SOLR_FIELD_SITE = "site";
     private static final String SOLR_FIELD_CATEGORY = "categorie";
     public static final String SOLR_FIELD_FORM_UID_TITLE = "form_id_title_string";
@@ -64,9 +65,24 @@ public class SolrQueryService
     public static final String SOLR_FIELD_DAY_OF_WEEK = "day_of_week_long";
     private static final String SOLR_TYPE_APPOINTMENT_SLOT = "appointment-slot";
     public static final String VALUE_FQ_EMPTY = "__EMPTY__";
+    
+    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Collections.unmodifiableList( Arrays.asList(
+            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.PARAMETER_SITE ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) ) );
 
-    public static SolrQuery getCommonFilteredQuery( HttpServletRequest request, Map<String, String> _searchParameters,
-            Map<String, String [ ]> _searchMultiParameters )
+    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Collections.unmodifiableList( Arrays.asList(
+            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.MARK_ITEM_SITES ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ),
+            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) ) );
+    
+    private SolrQueryService( )
+    {
+        // private constructor
+    }
+
+    public static SolrQuery getCommonFilteredQuery( HttpServletRequest request, Map<String, String> searchParameters,
+            Map<String, String [ ]> searchMultiParameters )
     {
         SolrQuery query = new SolrQuery( );
         query.setQuery( SOLR_QUERY_ALL );
@@ -78,7 +94,7 @@ public class SolrQueryService
 
         for ( SimpleImmutableEntry<String, String> entry : EXACT_FACET_QUERIES )
         {
-            String strValue = Utilities.getSearchParameterValue( entry.getValue( ), request, _searchParameters );
+            String strValue = Utilities.getSearchParameterValue( entry.getValue( ), request, searchParameters );
             String strFacetField;
             if ( SOLR_FIELD_FORM_UID.equals( entry.getKey( ) ) )
             {
@@ -105,9 +121,9 @@ public class SolrQueryService
             query.addFacetField( strFacetField );
         }
 
-        StringBuffer sbFqDaysOfWeek = new StringBuffer( );
-        String [ ] searchDays = Utilities.getSearchMultiParameter( Utilities.PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
-        if ( searchDays != null && searchDays.length > 0 )
+        StringBuilder sbFqDaysOfWeek = new StringBuilder( );
+        String [ ] searchDays = Utilities.getSearchMultiParameter( Utilities.PARAMETER_DAYS_OF_WEEK, request, searchMultiParameters );
+        if ( ArrayUtils.isNotEmpty( searchDays ) )
         {
             sbFqDaysOfWeek.append( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" );
             for ( int nDay = 0; nDay < searchDays.length; nDay++ )
@@ -123,10 +139,10 @@ public class SolrQueryService
         query.addFilterQuery( sbFqDaysOfWeek.toString( ) );
         query.addFacetField( "{!ex=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK );
 
-        String strFromDate = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DATE, request, _searchParameters );
-        String strFromTime = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_TIME, request, _searchParameters );
-        String strToDate = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_DATE, request, _searchParameters );
-        String strToTime = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_TIME, request, _searchParameters );
+        String strFromDate = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DATE, request, searchParameters );
+        String strFromTime = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_TIME, request, searchParameters );
+        String strToDate = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_DATE, request, searchParameters );
+        String strToTime = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_TIME, request, searchParameters );
         LocalDateTime localDateTimeFrom = null;
         try
         {
@@ -156,8 +172,8 @@ public class SolrQueryService
             strSolrDateTimeTo = localDateTimeTo.format( Utilities.outputFormatter );
         }
         query.addFilterQuery( SOLR_FIELD_DATE + ":[" + strSolrDateTimeFrom + " TO " + strSolrDateTimeTo + "]" );
-        String strFromDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DAY_MINUTE, request, _searchParameters );
-        String strToDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_DAY_MINUTE, request, _searchParameters );
+        String strFromDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DAY_MINUTE, request, searchParameters );
+        String strToDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_DAY_MINUTE, request, searchParameters );
         String strSolrDayMinuteFrom = "*";
         if ( strFromDayMinute != null )
         {
@@ -171,15 +187,4 @@ public class SolrQueryService
         query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]" );
         return query;
     }
-
-    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Arrays.asList(
-            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.PARAMETER_SITE ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) );
-
-    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Arrays.asList(
-            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.MARK_ITEM_SITES ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) );
-
 }

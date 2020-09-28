@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.appointment.modules.solrsearchapp.service;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -71,18 +72,23 @@ public final class Utilities
     public static final String MARK_ITEM_CATEGORIES = "items_categories";
     public static final String MARK_ITEM_FORMS = "items_forms";
 
-    public static final String [ ] listDaysCodes = {
+    public static final String [ ] LIST_DAYS_CODE = {
             "1", "2", "3", "4", "5", "6", "7"
     };
-    public static final List<SimpleImmutableEntry<String, String>> listDays = Arrays.asList(
+    public static final List<SimpleImmutableEntry<String, String>> LIST_DAYS = Collections.unmodifiableList( Arrays.asList(
             new SimpleImmutableEntry<>( "1", "module.appointment.solrsearchapp.days.1" ),
             new SimpleImmutableEntry<>( "2", "module.appointment.solrsearchapp.days.2" ),
             new SimpleImmutableEntry<>( "3", "module.appointment.solrsearchapp.days.3" ),
             new SimpleImmutableEntry<>( "4", "module.appointment.solrsearchapp.days.4" ),
             new SimpleImmutableEntry<>( "5", "module.appointment.solrsearchapp.days.5" ),
             new SimpleImmutableEntry<>( "6", "module.appointment.solrsearchapp.days.6" ),
-            new SimpleImmutableEntry<>( "7", "module.appointment.solrsearchapp.days.7" ) );
+            new SimpleImmutableEntry<>( "7", "module.appointment.solrsearchapp.days.7" ) ) );
 
+    private Utilities( )
+    {
+        // private constructor
+    }
+    
     public static String getSearchParameterValue( String parameter, HttpServletRequest request, Map<String, String> savedSearchParameters )
     {
         String requestValue = getSearchParameter( parameter, request, savedSearchParameters );
