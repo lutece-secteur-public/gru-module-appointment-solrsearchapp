@@ -184,7 +184,7 @@
                                                 <ul>
                                                 <#list group.result.list as slot>
                                                     <li>
-                                                        <a href="${slot.url}"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>${slot.date?datetime} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                                                        <a href="${slot.url}&nbPlacesToTake=${nb_consecutive_slots!'1'}"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>${slot.date?datetime} <i class="fa fa-external-link" aria-hidden="true"></i></a>
                                                     </li>
                                                 </#list>
                                                 </ul>

@@ -357,6 +357,9 @@ public class AppointmentSearchApp extends MVCApplication
             referenceListDaysOfWeek.add( item );
         }
         model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
+        
+        String nbSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, _searchParameters );
+        model.put( MARK_NB_SLOTS, nbSlots );
         return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
     }
 
