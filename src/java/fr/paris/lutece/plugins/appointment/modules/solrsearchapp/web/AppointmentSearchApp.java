@@ -90,6 +90,7 @@ public class AppointmentSearchApp extends MVCApplication
 
     private static final String ACCESS_DENIED = "module.appointment.solrsearchapp.accessDenied";
 
+    private static final String VALUES = "values";
     private static final String VIEW_SEARCH = "search";
     private static final String ACTION_SEARCH = "search";
     private static final String ACTION_CLEAR = "clear";
@@ -120,7 +121,7 @@ public class AppointmentSearchApp extends MVCApplication
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DATE, MARK_TO_DATE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_TIME, MARK_TO_TIME ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DAY_MINUTE, MARK_FROM_DAY_MINUTE ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DAY_MINUTE, MARK_TO_DAY_MINUTE ),
-            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ));
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ) );
 
     private static final int SOLR_GROUP_LIMIT = 3;
     private Map<String, String> _searchParameters;
@@ -232,99 +233,111 @@ public class AppointmentSearchApp extends MVCApplication
 
         model.put( "freePlacesCount", mapFreePlacesCount );
 
-        String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterAll", locale );
-        String strLabelEmpty = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterEmpty", locale );
         for ( SimpleImmutableEntry<String, String> entry : SolrQueryService.FACET_FIELDS )
         {
-            ReferenceList referenceList = new ReferenceList( );
-            referenceList.addItem( "", strLabelAll ); // Count will be set
-                                                      // later with the
-                                                      // correct value
-
-            FacetField facetField = response.getFacetField( entry.getKey( ) );
-            String strSearchParameter;
-            boolean bFacetAndLabel;
-            if ( SolrQueryService.SOLR_FIELD_FORM_UID_TITLE.equals( entry.getKey( ) ) )
-            {
-                bFacetAndLabel = true;
-                strSearchParameter = Utilities.PARAMETER_FORM;
-            }
-            else
-            {
-                bFacetAndLabel = false;
-                strSearchParameter = Utilities.PARAMETER_CATEGORY;
-                for ( SimpleImmutableEntry<String, String> fq_entry : SolrQueryService.EXACT_FACET_QUERIES )
-                {
-                    if ( fq_entry.getKey( ).equals( entry.getKey( ) ) )
-                    {
-                        strSearchParameter = fq_entry.getValue( );
-                        break;
-                    }
-                }
-            }
-            boolean bCurrentSearchParameterPresent = false;
-            String strSearchParameterValue = Utilities.getSearchParameterValue( strSearchParameter, request, _searchParameters );
-
-            int total = 0;
-            for ( FacetField.Count facetFieldCount : facetField.getValues( ) )
-            {
-                String strCode;
-                String strName;
-                String strCodeName;
-
-                if ( facetFieldCount.getName( ) == null )
-                {
-                    bFacetAndLabel = false;
-                }
-
-                if ( bFacetAndLabel )
-                {
-                    String [ ] facetNameSplit = facetFieldCount.getName( ).split( "\\|" );
-                    strCode = facetNameSplit [0];
-                    strName = facetNameSplit [1];
-                    strCodeName = facetNameSplit [0] + "|" + facetNameSplit [1];
-                }
-                else
-                {
-                    strCode = facetFieldCount.getName( );
-                    strName = facetFieldCount.getName( );
-                    strCodeName = facetFieldCount.getName( );
-                    // Here, we could add a difference between null and ""
-                    // by using
-                    // another special value (eg VALUE_FQ_MISSING =
-                    // __MISSING__).
-                    if ( StringUtils.isEmpty( strCode ) )
-                    {
-                        strCode = SolrQueryService.VALUE_FQ_EMPTY;
-                        strCodeName = SolrQueryService.VALUE_FQ_EMPTY;
-                        strName = strLabelEmpty;
-                    }
-                }
-                // Even though we set FacetMinCount to 1, solr gives a
-                // result with a count of 0 for the docs missing the field
-                if ( facetFieldCount.getCount( ) > 0 )
-                {
-                    referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount( ) + ")" );
-                    bCurrentSearchParameterPresent |= strCode.equals( strSearchParameterValue );
-                    total += facetFieldCount.getCount( );
-                }
-            }
-
-            ReferenceItem itemAll = referenceList.get( 0 );
-            itemAll.setName( itemAll.getName( ) + " (" + total + ")" );
-
-            if ( !bCurrentSearchParameterPresent && StringUtils.isNotEmpty( strSearchParameterValue ) )
-            {
-                String strSearchParameterValueLabel = Utilities.getSearchParameter( strSearchParameter, request, _searchParameters );
-                String strSearchParameterLabel = Utilities.getSearchParameterLabel( strSearchParameter, request, _searchParameters );
-                referenceList.addItem( strSearchParameterValueLabel, strSearchParameterLabel + " (0)" );
-            }
+            ReferenceList referenceList = createReferenceListFacet( response, entry, request, locale );
             model.put( entry.getValue( ), referenceList );
         }
 
         FacetField facetField = response.getFacetField( SolrQueryService.SOLR_FIELD_DAY_OF_WEEK );
-        ReferenceList referenceListDaysOfWeek = new ReferenceList( );
+        ReferenceList referenceListDaysOfWeek = createReferenceListDaysOfWeek( facetField, request, locale );
+        model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
+
+        String nbSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, _searchParameters );
+        model.put( MARK_NB_SLOTS, nbSlots );
+        return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+    }
+
+    private ReferenceList createReferenceListFacet( QueryResponse response, SimpleImmutableEntry<String, String> entry, HttpServletRequest request,
+            Locale locale )
+    {
+        String strLabelAll = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterAll", locale );
+        String strLabelEmpty = I18nService.getLocalizedString( "module.appointment.solrsearchapp.labelFilterEmpty", locale );
+
+        ReferenceList referenceList = new ReferenceList( );
+        referenceList.addItem( "", strLabelAll ); // Count will be set
+                                                  // later with the
+                                                  // correct value
+
+        FacetField facetField = response.getFacetField( entry.getKey( ) );
+        String strSearchParameter;
+        boolean bFacetAndLabel;
+        if ( SolrQueryService.SOLR_FIELD_FORM_UID_TITLE.equals( entry.getKey( ) ) )
+        {
+            bFacetAndLabel = true;
+            strSearchParameter = Utilities.PARAMETER_FORM;
+        }
+        else
+        {
+            bFacetAndLabel = false;
+            strSearchParameter = SolrQueryService.EXACT_FACET_QUERIES.stream( ).filter( fq -> fq.getKey( ).equals( entry.getKey( ) ) ).findFirst( )
+                    .map( SimpleImmutableEntry::getValue ).orElse( Utilities.PARAMETER_CATEGORY );
+        }
+        boolean bCurrentSearchParameterPresent = false;
+        String strSearchParameterValue = Utilities.getSearchParameterValue( strSearchParameter, request, _searchParameters );
+
+        int total = 0;
+        for ( FacetField.Count facetFieldCount : facetField.getValues( ) )
+        {
+            String strCode;
+            String strName;
+            String strCodeName;
+
+            if ( facetFieldCount.getName( ) == null )
+            {
+                bFacetAndLabel = false;
+            }
+
+            if ( bFacetAndLabel )
+            {
+                String [ ] facetNameSplit = facetFieldCount.getName( ).split( "\\|" );
+                strCode = facetNameSplit [0];
+                strName = facetNameSplit [1];
+                strCodeName = facetNameSplit [0] + "|" + facetNameSplit [1];
+            }
+            else
+            {
+                strCode = facetFieldCount.getName( );
+                strName = facetFieldCount.getName( );
+                strCodeName = facetFieldCount.getName( );
+                // Here, we could add a difference between null and ""
+                // by using
+                // another special value (eg VALUE_FQ_MISSING =
+                // __MISSING__).
+                if ( StringUtils.isEmpty( strCode ) )
+                {
+                    strCode = SolrQueryService.VALUE_FQ_EMPTY;
+                    strCodeName = SolrQueryService.VALUE_FQ_EMPTY;
+                    strName = strLabelEmpty;
+                }
+            }
+            // Even though we set FacetMinCount to 1, solr gives a
+            // result with a count of 0 for the docs missing the field
+            if ( facetFieldCount.getCount( ) > 0 )
+            {
+                referenceList.addItem( strCodeName, strName + " (" + facetFieldCount.getCount( ) + ")" );
+                bCurrentSearchParameterPresent |= strCode.equals( strSearchParameterValue );
+                total += facetFieldCount.getCount( );
+            }
+        }
+
+        ReferenceItem itemAll = referenceList.get( 0 );
+        itemAll.setName( itemAll.getName( ) + " (" + total + ")" );
+
+        if ( !bCurrentSearchParameterPresent && StringUtils.isNotEmpty( strSearchParameterValue ) )
+        {
+            String strSearchParameterValueLabel = Utilities.getSearchParameter( strSearchParameter, request, _searchParameters );
+            String strSearchParameterLabel = Utilities.getSearchParameterLabel( strSearchParameter, request, _searchParameters );
+            referenceList.addItem( strSearchParameterValueLabel, strSearchParameterLabel + " (0)" );
+        }
+
+        return referenceList;
+    }
+
+    private ReferenceList createReferenceListDaysOfWeek( FacetField facetField, HttpServletRequest request, Locale locale )
+    {
         Set<String> searchDaysChecked = new HashSet<>( );
+        ReferenceList referenceListDaysOfWeek = new ReferenceList( );
         String [ ] searchDays = Utilities.getSearchMultiParameter( Utilities.PARAMETER_DAYS_OF_WEEK, request, _searchMultiParameters );
         if ( searchDays != null )
         {
@@ -356,11 +369,7 @@ public class AppointmentSearchApp extends MVCApplication
             item.setChecked( searchDaysChecked.contains( strDayCode ) );
             referenceListDaysOfWeek.add( item );
         }
-        model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
-        
-        String nbSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, _searchParameters );
-        model.put( MARK_NB_SLOTS, nbSlots );
-        return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+        return referenceListDaysOfWeek;
     }
 
     // Getting the types right for all the maps and lists is just to tedious
@@ -371,8 +380,8 @@ public class AppointmentSearchApp extends MVCApplication
     } )
     private void sortResponses( Map<String, Object> wrapGroupResponse, HashMap<String, Integer> mapFreePlacesCount )
     {
-        List<Object> listGroupCommands = (List) wrapGroupResponse.get( "values" );
-        List<Map> listGroups = ( (List) ( (Map) listGroupCommands.get( 0 ) ).get( "values" ) );
+        List<Object> listGroupCommands = (List) wrapGroupResponse.get( VALUES );
+        List<Map> listGroups = ( (List) ( (Map) listGroupCommands.get( 0 ) ).get( VALUES ) );
 
         listGroups.sort( Comparator.comparing( ( Map group ) -> {
             Map firstResult = getFirstResult( group );
@@ -481,7 +490,7 @@ public class AppointmentSearchApp extends MVCApplication
         {
             wrappedListGroupCommand.add( wrapGroupCommand( groupCommand ) );
         }
-        result.put( "values", wrappedListGroupCommand );
+        result.put( VALUES, wrappedListGroupCommand );
         return result;
     }
 
@@ -493,7 +502,7 @@ public class AppointmentSearchApp extends MVCApplication
         {
             wrappedListGroup.add( wrapGroup( group ) );
         }
-        result.put( "values", wrappedListGroup );
+        result.put( VALUES, wrappedListGroup );
         result.put( "matches", groupCommand.getMatches( ) );
         result.put( "name", groupCommand.getName( ) );
         result.put( "nGroups", groupCommand.getNGroups( ) );

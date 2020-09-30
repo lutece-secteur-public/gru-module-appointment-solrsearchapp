@@ -66,17 +66,17 @@ public class SolrQueryService
     public static final String SOLR_FIELD_DAY_OF_WEEK = "day_of_week_long";
     private static final String SOLR_TYPE_APPOINTMENT_SLOT = "appointment-slot";
     public static final String VALUE_FQ_EMPTY = "__EMPTY__";
-    
-    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Collections.unmodifiableList( Arrays.asList(
-            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.PARAMETER_SITE ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) ) );
 
-    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Collections.unmodifiableList( Arrays.asList(
-            new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.MARK_ITEM_SITES ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ),
-            new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) ) );
-    
+    public static final List<SimpleImmutableEntry<String, String>> EXACT_FACET_QUERIES = Collections
+            .unmodifiableList( Arrays.asList( new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.PARAMETER_SITE ),
+                    new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.PARAMETER_CATEGORY ),
+                    new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID, Utilities.PARAMETER_FORM ) ) );
+
+    public static final List<SimpleImmutableEntry<String, String>> FACET_FIELDS = Collections
+            .unmodifiableList( Arrays.asList( new SimpleImmutableEntry<>( SOLR_FIELD_SITE, Utilities.MARK_ITEM_SITES ),
+                    new SimpleImmutableEntry<>( SOLR_FIELD_CATEGORY, Utilities.MARK_ITEM_CATEGORIES ),
+                    new SimpleImmutableEntry<>( SOLR_FIELD_FORM_UID_TITLE, Utilities.MARK_ITEM_FORMS ) ) );
+
     private SolrQueryService( )
     {
         // private constructor
@@ -95,31 +95,7 @@ public class SolrQueryService
 
         for ( SimpleImmutableEntry<String, String> entry : EXACT_FACET_QUERIES )
         {
-            String strValue = Utilities.getSearchParameterValue( entry.getValue( ), request, searchParameters );
-            String strFacetField;
-            if ( SOLR_FIELD_FORM_UID.equals( entry.getKey( ) ) )
-            {
-                strFacetField = SOLR_FIELD_FORM_UID_TITLE;
-            }
-            else
-            {
-                strFacetField = entry.getKey( );
-            }
-            if ( StringUtils.isNotBlank( strValue ) )
-            {
-                String strFilterQuery;
-                if ( VALUE_FQ_EMPTY.equals( strValue ) )
-                {
-                    strFilterQuery = entry.getKey( ) + ":" + "\"\" OR (*:* NOT " + entry.getKey( ) + ":*)";
-                }
-                else
-                {
-                    strFilterQuery = entry.getKey( ) + ":" + ClientUtils.escapeQueryChars( strValue );
-                }
-                query.addFilterQuery( "{!tag=tag" + strFacetField + "}" + strFilterQuery );
-                strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
-            }
-            query.addFacetField( strFacetField );
+            addFacetToQuery( query, request, searchParameters, entry );
         }
 
         StringBuilder sbFqDaysOfWeek = new StringBuilder( );
@@ -186,10 +162,39 @@ public class SolrQueryService
             strSolrDayMinuteTo = strToDayMinute;
         }
         query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]" );
-        
+
         String strNbConsecutiveSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, searchParameters );
         int nbConsecutiveSlots = Integer.parseInt( strNbConsecutiveSlots );
         query.addFilterQuery( SOLR_NB_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
         return query;
+    }
+    
+    private static void addFacetToQuery( SolrQuery query, HttpServletRequest request, Map<String, String> searchParameters, SimpleImmutableEntry<String, String> entry )
+    {
+        String strValue = Utilities.getSearchParameterValue( entry.getValue( ), request, searchParameters );
+        String strFacetField;
+        if ( SOLR_FIELD_FORM_UID.equals( entry.getKey( ) ) )
+        {
+            strFacetField = SOLR_FIELD_FORM_UID_TITLE;
+        }
+        else
+        {
+            strFacetField = entry.getKey( );
+        }
+        if ( StringUtils.isNotBlank( strValue ) )
+        {
+            String strFilterQuery;
+            if ( VALUE_FQ_EMPTY.equals( strValue ) )
+            {
+                strFilterQuery = entry.getKey( ) + ":" + "\"\" OR (*:* NOT " + entry.getKey( ) + ":*)";
+            }
+            else
+            {
+                strFilterQuery = entry.getKey( ) + ":" + ClientUtils.escapeQueryChars( strValue );
+            }
+            query.addFilterQuery( "{!tag=tag" + strFacetField + "}" + strFilterQuery );
+            strFacetField = "{!ex=tag" + strFacetField + "}" + strFacetField;
+        }
+        query.addFacetField( strFacetField );
     }
 }
