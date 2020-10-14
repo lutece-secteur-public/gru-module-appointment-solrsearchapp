@@ -56,6 +56,7 @@ public final class Utilities
     public static final String PARAMETER_FROM_DAY_MINUTE = "from_day_minute";
     public static final String PARAMETER_TO_DAY_MINUTE = "to_day_minute";
     public static final String PARAMETER_NB_SLOTS = "nb_consecutive_slots";
+    public static final String PARAMETER_ROLE = "role";
     public static final String DEFAULT_DATE_FORMAT_INPUT_DATE = "dd/MM/yyyy";
     // Bad because it will not reload on property reload, but then caching DateTimeFormatter becomes a pain..
     public static final String DATE_FORMAT_INPUT_DATE = AppPropertiesService.getProperty( PROPERTY_DATE_FORMAT_INPUT_DATE, DEFAULT_DATE_FORMAT_INPUT_DATE );

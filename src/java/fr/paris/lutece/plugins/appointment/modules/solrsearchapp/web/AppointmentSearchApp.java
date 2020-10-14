@@ -112,6 +112,7 @@ public class AppointmentSearchApp extends MVCApplication
     private static final String MARK_FROM_DAY_MINUTE = "from_day_minute";
     private static final String MARK_TO_DAY_MINUTE = "to_day_minute";
     private static final String MARK_NB_SLOTS = "nb_consecutive_slots";
+    private static final String MARK_ROLE = "role";
     private static final String MARK_RESULTS = "results";
 
     private static final List<SimpleImmutableEntry<String, String>> SEARCH_FIELDS = Arrays.asList(
@@ -121,7 +122,8 @@ public class AppointmentSearchApp extends MVCApplication
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DATE, MARK_TO_DATE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_TIME, MARK_TO_TIME ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DAY_MINUTE, MARK_FROM_DAY_MINUTE ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DAY_MINUTE, MARK_TO_DAY_MINUTE ),
-            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ) );
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ),
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_ROLE, MARK_ROLE ) );
 
     private static final int SOLR_GROUP_LIMIT = 3;
     private Map<String, String> _searchParameters;
@@ -139,6 +141,7 @@ public class AppointmentSearchApp extends MVCApplication
             _searchParameters.put( Utilities.PARAMETER_FROM_TIME, "06:00" );
             _searchParameters.put( Utilities.PARAMETER_TO_TIME, "21:00" );
             _searchParameters.put( Utilities.PARAMETER_NB_SLOTS, "1" );
+            _searchParameters.put( Utilities.PARAMETER_ROLE, "none" );
         }
     }
 
@@ -453,6 +456,7 @@ public class AppointmentSearchApp extends MVCApplication
         _searchParameters.put( Utilities.PARAMETER_FROM_TIME, "06:00" );
         _searchParameters.put( Utilities.PARAMETER_TO_TIME, "21:00" );
         _searchParameters.put( Utilities.PARAMETER_NB_SLOTS, "1" );
+        _searchParameters.put( Utilities.PARAMETER_ROLE, "none" );
 
         // Need to put the category in the url
         LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<>( );
