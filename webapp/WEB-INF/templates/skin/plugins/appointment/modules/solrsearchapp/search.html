@@ -14,7 +14,6 @@
     { "code":"1080", "name":"18h00"},
     { "code":"1260", "name":"21h00"}
     ]>
-    
 <div class="row">
     <div class="col-sm-12">
         <div class="container">        	
@@ -72,6 +71,7 @@
                         <legend id="advanced_search_button">#i18n{module.appointment.solrsearchapp.advancedSearch} <i class="fa fa-cogs"></i></legend>
                         <form name="search" method="post" action="jsp/site/Portal.jsp?page=appointmentsearch<#if category??>&amp;category=${category}</#if>">
                             <input name="page" value="appointmentsearch" type="hidden">
+                            <input name="role" value="${role!'none'}" type="hidden">
                             <div id="advanced_search">
                                 <div class="form-group">
                                     <label>#i18n{module.appointment.solrsearchapp.dates}</label>
