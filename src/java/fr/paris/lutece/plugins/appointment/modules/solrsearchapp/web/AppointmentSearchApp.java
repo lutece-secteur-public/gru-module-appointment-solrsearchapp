@@ -433,7 +433,10 @@ public class AppointmentSearchApp extends MVCApplication
         _searchMultiParameters.put( Utilities.PARAMETER_DAYS_OF_WEEK, request.getParameterValues( Utilities.PARAMETER_DAYS_OF_WEEK ) );
         // Need to put the category in the url
         LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<>( );
-        additionalParameters.put( Utilities.PARAMETER_CATEGORY, request.getParameter( Utilities.PARAMETER_CATEGORY ) );
+        if ( StringUtils.isNotEmpty( request.getParameter( Utilities.PARAMETER_CATEGORY ) ) )
+        {
+            additionalParameters.put( Utilities.PARAMETER_CATEGORY, request.getParameter( Utilities.PARAMETER_CATEGORY ) );
+        }
         return redirect( request, VIEW_SEARCH, additionalParameters );
     }
 
