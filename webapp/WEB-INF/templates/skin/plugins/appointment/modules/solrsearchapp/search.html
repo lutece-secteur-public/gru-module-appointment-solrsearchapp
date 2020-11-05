@@ -192,7 +192,7 @@
                                                 <p><span class="emphasize_default">#i18n{module.appointment.solrsearchapp.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
                                             </div>
                                             <div>
-                                                <a id="link_${group.groupValue?json_string}_full_calendar" class="btn btn-primary btn-sm" href="${group.result.list[0].url_form_string}">#i18n{module.appointment.solrsearchapp.completeSchedule}</a>
+                                                <a id="link_${group.groupValue?json_string}_full_calendar" class="btn btn-primary btn-sm" href="${group.result.list[0].url_form_string}&nbPlacesToTake=${nb_consecutive_slots!'1'}">#i18n{module.appointment.solrsearchapp.completeSchedule}</a>
                                             </div>
                                         </div>
                                     </div>
