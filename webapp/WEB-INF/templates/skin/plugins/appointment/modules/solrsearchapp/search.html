@@ -1,3 +1,4 @@
+
 <#assign items_time= [
     { "code":"06:00", "name":"06h00"},
     { "code":"09:00", "name":"09h00"},
@@ -211,6 +212,7 @@
 <script src="js/jquery/plugins/ui/jquery-ui.min.js"></script>
 <script src="js/jquery/plugins/ui/ui.datepicker-fr.js"></script>
 <script>
+
     $( "#from_date" ).datepicker({
         regional: "fr",    
         changeMonth: true,
@@ -271,6 +273,8 @@
             return false;
         });
         function doDisplaySearchForm(){
+			var msgCarto = $('#cartomessage').html();
+			$('#message-carto').html( msgCarto );
             $("#searchForm").toggle();
             $("#map_col").toggleClass("col-md-8").toggleClass("col-md-12");
             $("#tgSearchForm > i.hidden-xs").toggleClass("fa fa-chevron-left").toggleClass("fa fa-chevron-right");
@@ -281,7 +285,6 @@
             }
         }
 		
-		$('#message-carto').html( $('#cartomessage').html() );
 
     });
 </script>
