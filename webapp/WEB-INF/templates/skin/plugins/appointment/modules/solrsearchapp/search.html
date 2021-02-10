@@ -19,7 +19,7 @@
         <div class="container">        	
             <div class="row">
             	<@messages infos=infos errors=errors/>
-               <div  class="col-xs-12">
+				<div  class="col-xs-12">
 					<div class="formGroupContainer messageContainer" id="message-carto"></div>
 				</div>
                 <div class="col-xs-12">
@@ -181,18 +181,18 @@
                                         <div>
                                             <div>
                                                 <#if (group.result.list[0].appointmentslot_address_text)??>
-                                                    <p>#i18n{module.appointment.solrsearchapp.address} : ${group.result.list[0].appointmentslot_address_text?html}</p>
+                                                    <p><!-- #i18n{module.appointment.solrsearchapp.address} :  -->${group.result.list[0].appointmentslot_address_text?html}</p>
                                                 </#if>
                                                 <p class="emphasize_default">#i18n{module.appointment.solrsearchapp.nextAvailableSlots} :</p>
                                                 <ul>
                                                 <#list group.result.list as slot>
                                                     <li>
-                                                        <a href="${slot.url}&nbPlacesToTake=${nb_consecutive_slots!'1'}"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>${slot.date?datetime} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                                                        <a title="${slot.date?datetime?string["dd MMMM yyyy HH:mm"]}" href="${slot.url}&nbPlacesToTake=${nb_consecutive_slots!'1'}"<#if slot_index = 0> id="link_${group.groupValue?json_string}_first_slot"</#if>>${slot.date?datetime?string["dd MMMM yyyy HH:mm"]}</a>
                                                     </li>
                                                 </#list>
                                                 </ul>
                                                 <p>${group.result.numFound - group.result.list?size} #i18n{module.appointment.solrsearchapp.otherAvailableSchedules}</p>
-                                                <p><span class="emphasize_default">#i18n{module.appointment.solrsearchapp.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p>
+                                                <!-- <p><span class="emphasize_default">#i18n{module.appointment.solrsearchapp.nbOfFreeSlots} :</span> ${freePlacesCount[group.groupValue]} (#i18n{module.appointment.solrsearchapp.occupancyRate} : ${((totalPlacesCount[group.groupValue] - freePlacesCount[group.groupValue]) / totalPlacesCount[group.groupValue])?string.percent})</p> -->
                                             </div>
                                             <div>
                                                 <a id="link_${group.groupValue?json_string}_full_calendar" class="btn btn-primary btn-sm" href="${group.result.list[0].url_form_string}&nbPlacesToTake=${nb_consecutive_slots!'1'}">#i18n{module.appointment.solrsearchapp.completeSchedule}</a>
