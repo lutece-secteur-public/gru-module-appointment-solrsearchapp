@@ -24,7 +24,7 @@
 				</div>
                 <div class="col-xs-12">
                     <h3>#i18n{module.appointment.solrsearchapp.map}</h3>
-                    <p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>#rdv_liste">#i18n{module.appointment.solrsearchapp.displayAvailableSlots}</a></p>
+                    <p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>&amp;nb_consecutive_slots=${nb_consecutive_slots!'1'}&amp;role=${role!'none'}#rdv_liste">#i18n{module.appointment.solrsearchapp.displayAvailableSlots}</a></p>
                     <p class="visible-xs">#i18n{module.appointment.solrsearchapp.mapAvailableForBigScreen}</p>
                 </div>
             </div>
