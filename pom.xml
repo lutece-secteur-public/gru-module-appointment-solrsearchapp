@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <artifactId>lutece-global-pom</artifactId>
@@ -12,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-appointment-solrsearchapp</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <name>Lutece appointment solrsearchapp module</name>
 
     <repositories>
@@ -37,14 +35,14 @@
         <componentName>appointment-solrsearchapp</componentName>
         <jiraProjectName>APPSOLRSEA</jiraProjectName>
         <jiraComponentId>13452</jiraComponentId>
-        <sonar.tests></sonar.tests>
+        <sonar.tests />
     </properties>
 
     <scm>
         <connection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</developerConnection>
         <url>https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</url>
-        <tag>HEAD</tag>
+        <tag>module-appointment-solrsearchapp-3.0.0</tag>
     </scm>
 
 </project>
