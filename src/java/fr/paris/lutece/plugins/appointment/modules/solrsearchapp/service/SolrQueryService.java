@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2020, City of Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.util.ClientUtils;
-
 
 public class SolrQueryService
 {
@@ -168,7 +167,7 @@ public class SolrQueryService
         String strNbConsecutiveSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, searchParameters );
         int nbConsecutiveSlots = Integer.parseInt( strNbConsecutiveSlots );
         query.addFilterQuery( SOLR_NB_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
-        
+
         String strRole = Utilities.getSearchParameterValue( Utilities.PARAMETER_ROLE, request, searchParameters );
         if ( StringUtils.isNotEmpty( strRole ) && !"none".equals( strRole ) )
         {
@@ -176,8 +175,9 @@ public class SolrQueryService
         }
         return query;
     }
-    
-    private static void addFacetToQuery( SolrQuery query, HttpServletRequest request, Map<String, String> searchParameters, SimpleImmutableEntry<String, String> entry )
+
+    private static void addFacetToQuery( SolrQuery query, HttpServletRequest request, Map<String, String> searchParameters,
+            SimpleImmutableEntry<String, String> entry )
     {
         String strValue = Utilities.getSearchParameterValue( entry.getValue( ), request, searchParameters );
         String strFacetField;

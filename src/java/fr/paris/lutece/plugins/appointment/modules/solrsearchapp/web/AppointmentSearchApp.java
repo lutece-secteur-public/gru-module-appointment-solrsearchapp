@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2020, City of Paris
+ * Copyright (c) 2002-2021, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,8 +122,7 @@ public class AppointmentSearchApp extends MVCApplication
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DATE, MARK_TO_DATE ), new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_TIME, MARK_TO_TIME ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_FROM_DAY_MINUTE, MARK_FROM_DAY_MINUTE ),
             new SimpleImmutableEntry<>( Utilities.PARAMETER_TO_DAY_MINUTE, MARK_TO_DAY_MINUTE ),
-            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ),
-            new SimpleImmutableEntry<>( Utilities.PARAMETER_ROLE, MARK_ROLE ) );
+            new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ), new SimpleImmutableEntry<>( Utilities.PARAMETER_ROLE, MARK_ROLE ) );
 
     private static final int SOLR_GROUP_LIMIT = 3;
     private Map<String, String> _searchParameters;
