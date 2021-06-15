@@ -23,10 +23,17 @@
 					<div class="formGroupContainer messageContainer" id="message-carto"></div>
 				</div>
                 <div class="col-xs-12">
-                    <h3>#i18n{module.appointment.solrsearchapp.map}</h3>
-                    <p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>&amp;nb_consecutive_slots=${nb_consecutive_slots!'1'}&amp;role=${role!'none'}#rdv_liste">#i18n{module.appointment.solrsearchapp.displayAvailableSlots}</a></p>
-                    <p class="visible-xs">#i18n{module.appointment.solrsearchapp.mapAvailableForBigScreen}</p>
-                </div>
+					<#if (results.values)?? >
+                        <#list results.values as groupcommand>
+							<#if  groupcommand.values?size gt 0>
+								<h3>#i18n{module.appointment.solrsearchapp.map}</h3>
+								<p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>&amp;nb_consecutive_slots=${nb_consecutive_slots!'1'}&amp;role=${role!'none'}#rdv_liste">#i18n{module.appointment.solrsearchapp.displayAvailableSlots}</a></p><p class="visible-xs">#i18n{module.appointment.solrsearchapp.mapAvailableForBigScreen}</p>
+							<#else>
+								<h3 class="text-warning" style="margin-bottom: 30px;"><i class="fa fa-exclamation-triangle"></i> #i18n{module.appointment.solrsearchapp.noMoreAvailableSlots}</h3>
+							</#if>
+                        </#list>
+					</#if>
+			   </div>
             </div>
             <div class="row">
                 <div id="map_col" class="hidden-xs col-sm-12 col-md-12" style="position:relative; display:none;">
@@ -120,7 +127,7 @@
                                 	<label>#i18n{module.appointment.titre.appointmenttitresearch.form.nbSlots.label}</label>
                                     <div class="row">
                                     	<div class="col-sm-6">
-	                                    	<@input type='number' name="nb_consecutive_slots" min=1 value=nb_consecutive_slots!'1' />
+	                                    	<@input type='number' name="nb_consecutive_slots" min=1 max=6 value=nb_consecutive_slots!'1' />
 	                                    </div>
                                     </div>
                                 </div>
@@ -200,12 +207,8 @@
                                     </div>
                                 </#list>
 								</div>
-							<#else>
-								<h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i>  #i18n{module.appointment.solrsearchapp.noMoreAvailableSlots}</h3>
 							</#if>
                         </#list>
-                    <#else>
-						<h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> #i18n{module.appointment.solrsearchapp.noMoreAvailableSlots}</h3>
 					</#if>
                 </div>
             </div>
