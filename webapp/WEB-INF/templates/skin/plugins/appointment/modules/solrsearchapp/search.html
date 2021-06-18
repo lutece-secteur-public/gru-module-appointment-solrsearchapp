@@ -29,7 +29,7 @@
 								<h3>#i18n{module.appointment.solrsearchapp.map}</h3>
 								<p><a href="jsp/site/Portal.jsp?page=appointmentsearch&view=search<#if category??>&amp;category=${category}</#if>&amp;nb_consecutive_slots=${nb_consecutive_slots!'1'}&amp;role=${role!'none'}#rdv_liste">#i18n{module.appointment.solrsearchapp.displayAvailableSlots}</a></p><p class="visible-xs">#i18n{module.appointment.solrsearchapp.mapAvailableForBigScreen}</p>
 							<#else>
-								<h3 class="text-warning" style="margin-bottom: 30px;"><i class="fa fa-exclamation-triangle"></i> #i18n{module.appointment.solrsearchapp.noMoreAvailableSlots}</h3>
+								<h3 class="text-warning" style="margin-bottom: 30px;font-size:30px"><i class="fa fa-exclamation-triangle"></i> #i18n{module.appointment.solrsearchapp.noMoreAvailableSlots}</h3>
 							</#if>
                         </#list>
 					</#if>
