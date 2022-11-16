@@ -32,11 +32,4 @@
         <javascript-file>leaflet/esri/esri-leaflet.js</javascript-file>
         <javascript-file>appointment/modules/solrsearchapp/leaflet-appointmentsearch.js</javascript-file>
     </javascript-files> 
-    <filters>
-        <filter>
-            <filter-name>CorsFilter</filter-name>
-            <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
-            <url-pattern>/rest/leaflet/*</url-pattern>
-        </filter>        
-    </filters>   
 </plug-in>
