@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-appointment-solrsearchapp</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>3.0.3</version>
     <name>Lutece appointment solrsearchapp module</name>
 
     <repositories>
@@ -42,7 +42,7 @@
         <connection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</developerConnection>
         <url>https://github.com/lutece-secteur-public/gru-module-appointment-solrsearchapp.git</url>
-        <tag>HEAD</tag>
+        <tag>module-appointment-solrsearchapp-3.0.3</tag>
     </scm>
 
 </project>
