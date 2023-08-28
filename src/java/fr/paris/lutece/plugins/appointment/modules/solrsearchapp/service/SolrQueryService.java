@@ -63,6 +63,7 @@ public class SolrQueryService
     public static final String SOLR_FIELD_DATE = "date";
     private static final String SOLR_FIELD_MINUTE_OF_DAY = "minute_of_day_long";
     private static final String SOLR_NB_CONSECUTIVES_SLOTS = "nb_consecutives_slots_long";
+    private static final String SOLR_MAX_CONSECUTIVES_SLOTS = "max_consecutives_slots_long";
     private static final String SOLR_ROLE = "role";
     public static final String SOLR_FIELD_DAY_OF_WEEK = "day_of_week_long";
     private static final String SOLR_TYPE_APPOINTMENT_SLOT = "appointment-slot";
@@ -167,6 +168,7 @@ public class SolrQueryService
         String strNbConsecutiveSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, searchParameters );
         int nbConsecutiveSlots = Integer.parseInt( strNbConsecutiveSlots );
         query.addFilterQuery( SOLR_NB_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
+        query.addFilterQuery( SOLR_MAX_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
 
         String strRole = Utilities.getSearchParameterValue( Utilities.PARAMETER_ROLE, request, searchParameters );
         if ( StringUtils.isNotEmpty( strRole ) && !"none".equals( strRole ) )
