@@ -41,7 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -166,7 +166,7 @@ public class SolrQueryService
         query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]" );
 
         String strNbConsecutiveSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, searchParameters );
-        int nbConsecutiveSlots = Integer.parseInt( strNbConsecutiveSlots );
+        int nbConsecutiveSlots = StringUtils.isNotEmpty( strNbConsecutiveSlots ) ? Integer.parseInt( strNbConsecutiveSlots ) : 1;
         query.addFilterQuery( SOLR_NB_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
         query.addFilterQuery( SOLR_MAX_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
 

@@ -47,9 +47,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -65,7 +68,6 @@ import org.apache.solr.common.params.GroupParams;
 import fr.paris.lutece.plugins.appointment.modules.solrsearchapp.service.SolrQueryService;
 import fr.paris.lutece.plugins.appointment.modules.solrsearchapp.service.Utilities;
 import fr.paris.lutece.plugins.search.solr.business.SolrServerService;
-import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -73,10 +75,13 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 
+@SessionScoped
+@Named( "appointment-solrsearchapp.xpage.appointmentsearch" )
 @Controller( xpageName = "appointmentsearch", pageTitleI18nKey = "module.appointment.solrsearchapp.pageTitle", pagePathI18nKey = "module.appointment.solrsearchapp.pagePathLabel" )
 public class AppointmentSearchApp extends MVCApplication
 {
@@ -125,6 +130,10 @@ public class AppointmentSearchApp extends MVCApplication
             new SimpleImmutableEntry<>( Utilities.PARAMETER_NB_SLOTS, MARK_NB_SLOTS ), new SimpleImmutableEntry<>( Utilities.PARAMETER_ROLE, MARK_ROLE ) );
 
     private static final int SOLR_GROUP_LIMIT = 3;
+
+    @Inject
+    private Models _models;
+
     private Map<String, String> _searchParameters;
     private Map<String, String [ ]> _searchMultiParameters;
 
@@ -146,22 +155,19 @@ public class AppointmentSearchApp extends MVCApplication
 
     /**
      * Returns the content of the page AppointmentSearchApp.
-     * 
+     *
      * @param request
      *            The HTTP request
      * @return The view
-     * @throws AccessDeniedException
      */
     @View( value = VIEW_SEARCH, defaultView = true )
     public XPage viewSearch( HttpServletRequest request )
     {
-        Map<String, Object> model = new HashMap<>( );
         String category = request.getParameter( Utilities.PARAMETER_CATEGORY );
         if ( AppPropertiesService.getPropertyBoolean( PROPERTY_CATEGORY_REQUIRED, CATEGORY_REQUIRED_DEFAULT ) && StringUtils.isEmpty( category ) )
         {
             addError( ACCESS_DENIED, getLocale( request ) );
-            model = getModel( );
-            return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+            return getXPage( TEMPLATE_SEARCH, request.getLocale( ) );
         }
         initSearchParameters( );
         Locale locale = request.getLocale( );
@@ -171,7 +177,7 @@ public class AppointmentSearchApp extends MVCApplication
             String strValue = Utilities.getSearchParameter( entry.getKey( ), request, _searchParameters );
             if ( StringUtils.isNotBlank( strValue ) )
             {
-                model.put( entry.getValue( ), strValue );
+                _models.put( entry.getValue( ), strValue );
             }
         }
 
@@ -197,7 +203,7 @@ public class AppointmentSearchApp extends MVCApplication
         if ( responseAllPlaces != null )
         {
             HashMap<String, Integer> mapPlacesCount = getPlacesCount( responseAllPlaces, SOLR_PIVOT_NB_PLACES );
-            model.put( "totalPlacesCount", mapPlacesCount );
+            _models.put( "totalPlacesCount", mapPlacesCount );
         }
 
         SolrQuery query = basedQuery;
@@ -223,7 +229,7 @@ public class AppointmentSearchApp extends MVCApplication
         }
         if ( response == null )
         {
-            return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+            return getXPage( TEMPLATE_SEARCH, request.getLocale( ) );
         }
         GroupResponse groupResponse = response.getGroupResponse( );
         HashMap<String, Integer> mapFreePlacesCount = getPlacesCount( response, SOLR_PIVOT_NB_FREE_PLACES );
@@ -231,23 +237,23 @@ public class AppointmentSearchApp extends MVCApplication
         Map<String, Object> wrapGroupResponse = wrapGroupResponse( groupResponse );
         sortResponses( wrapGroupResponse, mapFreePlacesCount );
 
-        model.put( MARK_RESULTS, wrapGroupResponse );
+        _models.put( MARK_RESULTS, wrapGroupResponse );
 
-        model.put( "freePlacesCount", mapFreePlacesCount );
+        _models.put( "freePlacesCount", mapFreePlacesCount );
 
         for ( SimpleImmutableEntry<String, String> entry : SolrQueryService.FACET_FIELDS )
         {
             ReferenceList referenceList = createReferenceListFacet( response, entry, request, locale );
-            model.put( entry.getValue( ), referenceList );
+            _models.put( entry.getValue( ), referenceList );
         }
 
         FacetField facetField = response.getFacetField( SolrQueryService.SOLR_FIELD_DAY_OF_WEEK );
         ReferenceList referenceListDaysOfWeek = createReferenceListDaysOfWeek( facetField, request, locale );
-        model.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
+        _models.put( MARK_ITEM_DAYS_OF_WEEK, referenceListDaysOfWeek );
 
         String nbSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, _searchParameters );
-        model.put( MARK_NB_SLOTS, nbSlots );
-        return getXPage( TEMPLATE_SEARCH, request.getLocale( ), model );
+        _models.put( MARK_NB_SLOTS, nbSlots );
+        return getXPage( TEMPLATE_SEARCH, request.getLocale( ) );
     }
 
     private ReferenceList createReferenceListFacet( QueryResponse response, SimpleImmutableEntry<String, String> entry, HttpServletRequest request,

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><plug-in>
     <name>appointment-solrsearchapp</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>3.0.6-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <documentation/>
     <installation/>
     <changes/>
@@ -11,11 +11,15 @@
     <provider-url>http://dev.lutece.paris.fr</provider-url>
     <icon-url>images/admin/skin/plugins/appointment/appointment.png</icon-url>
     <copyright>Copyright (c) 2016 Mairie de Paris</copyright>
-    
+
+    <core-version-dependency>
+        <min-core-version>8.0.0</min-core-version>
+        <max-core-version/>
+    </core-version-dependency>
+
     <applications>
         <application>
             <application-id>appointmentsearch</application-id>
-            <application-class>fr.paris.lutece.plugins.appointment.modules.solrsearchapp.web.AppointmentSearchApp</application-class>
         </application>
     </applications>
     <css-stylesheets>
@@ -31,5 +35,5 @@
         <javascript-file>leaflet/leaflet/leaflet.markercluster.js</javascript-file>
         <javascript-file>leaflet/esri/esri-leaflet.js</javascript-file>
         <javascript-file>appointment/modules/solrsearchapp/leaflet-appointmentsearch.js</javascript-file>
-    </javascript-files> 
+    </javascript-files>
 </plug-in>
