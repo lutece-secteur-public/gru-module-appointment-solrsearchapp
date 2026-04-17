@@ -1,5 +1,5 @@
 var map;
-$(window).load(function () {
+window.addEventListener('load', function () {
     L.NumberedDivIcon = L.Icon.extend({
         options: {
         // EDIT THIS TO POINT TO THE FILE AT http://www.charliecroom.com/marker_hole.png (or your own marker)
@@ -32,7 +32,7 @@ $(window).load(function () {
 
     map = L.map('map').setView([48.85632, 2.33272], 12);
     var points = window.lutece_appointment_solrsearchapp_points;
-    var freePlaces = window.lutece_appointment_solrsearchapp_freePlaces;
+    var freePlaces = window.lutece_appointment_solrsearchapp_freePlaces;
 
     // create the tile layer with correct attribution
     var esri_streets = L.esri.basemapLayer('Streets').addTo(map);
@@ -67,21 +67,36 @@ $(window).load(function () {
                 var nId = point["id"].split("_")[1];
                 var url = point["url_base"] + "rest/leaflet/popup/" + point["type"] + "/" + nId + "/" + point["code"];
 
-                $.get(url).done(function(data) {
-					console.log("data", data);
-					var temp = $(data);
-					var label = '';
-					$("#link_" + point["id"] + "_first_slot").clone().appendTo(temp);
-					$("#link_" + point["id"] + "_full_calendar").clone().appendTo(temp);
-					console.log(temp[0].outerHTML)
-					var final_data = temp[0].outerHTML;
-					console.log("final_data", final_data);
-					popup.setContent(final_data);
-                    popup.update();
-                }).fail(function() {
-									popup.setContent("<p>Resource unavailable</p><p>" + point["url_base"] + "</p>");
-									popup.update();
-                });
+                fetch(url)
+                    .then(function(response) {
+                        return response.text();
+                    })
+                    .then(function(data) {
+                        console.log("data", data);
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(data, 'text/html');
+                        var temp = doc.body.firstChild;
+
+                        var firstSlot = document.getElementById("link_" + point["id"] + "_first_slot");
+                        var fullCalendar = document.getElementById("link_" + point["id"] + "_full_calendar");
+
+                        if (firstSlot) {
+                            temp.appendChild(firstSlot.cloneNode(true));
+                        }
+                        if (fullCalendar) {
+                            temp.appendChild(fullCalendar.cloneNode(true));
+                        }
+
+                        console.log(temp.outerHTML);
+                        var final_data = temp.outerHTML;
+                        console.log("final_data", final_data);
+                        popup.setContent(final_data);
+                        popup.update();
+                    })
+                    .catch(function() {
+                        popup.setContent("<p>Resource unavailable</p><p>" + point["url_base"] + "</p>");
+                        popup.update();
+                    });
             };
         })(points[i]));
 
