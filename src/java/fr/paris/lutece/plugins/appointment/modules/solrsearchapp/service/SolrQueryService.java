@@ -40,10 +40,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -84,6 +86,18 @@ public class SolrQueryService
         // private constructor
     }
 
+    /**
+     * Build the query of the free slots matching the search: the request values win over the saved ones, and every
+     * value reaching Solr is checked or escaped.
+     *
+     * @param request
+     *            the request
+     * @param searchParameters
+     *            the saved search parameters
+     * @param searchMultiParameters
+     *            the saved multi-valued search parameters
+     * @return the query
+     */
     public static SolrQuery getCommonFilteredQuery( HttpServletRequest request, Map<String, String> searchParameters,
             Map<String, String [ ]> searchMultiParameters )
     {
@@ -100,22 +114,13 @@ public class SolrQueryService
             addFacetToQuery( query, request, searchParameters, entry );
         }
 
-        StringBuilder sbFqDaysOfWeek = new StringBuilder( );
         String [ ] searchDays = Utilities.getSearchMultiParameter( Utilities.PARAMETER_DAYS_OF_WEEK, request, searchMultiParameters );
-        if ( ArrayUtils.isNotEmpty( searchDays ) )
+        String strDaysOfWeek = ArrayUtils.isEmpty( searchDays ) ? StringUtils.EMPTY
+                : Arrays.stream( searchDays ).filter( day -> day.matches( "[1-7]" ) ).collect( Collectors.joining( " OR " ) );
+        if ( !strDaysOfWeek.isEmpty( ) )
         {
-            sbFqDaysOfWeek.append( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" );
-            for ( int nDay = 0; nDay < searchDays.length; nDay++ )
-            {
-                if ( nDay > 0 )
-                {
-                    sbFqDaysOfWeek.append( " OR " );
-                }
-                sbFqDaysOfWeek.append( searchDays [nDay] );
-            }
-            sbFqDaysOfWeek.append( ")" );
+            query.addFilterQuery( "{!tag=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK + ":(" + strDaysOfWeek + ")" );
         }
-        query.addFilterQuery( sbFqDaysOfWeek.toString( ) );
         query.addFacetField( "{!ex=tag" + SOLR_FIELD_DAY_OF_WEEK + "}" + SOLR_FIELD_DAY_OF_WEEK );
 
         String strFromDate = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DATE, request, searchParameters );
@@ -153,27 +158,19 @@ public class SolrQueryService
         query.addFilterQuery( SOLR_FIELD_DATE + ":[" + strSolrDateTimeFrom + " TO " + strSolrDateTimeTo + "]" );
         String strFromDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_FROM_DAY_MINUTE, request, searchParameters );
         String strToDayMinute = Utilities.getSearchParameterValue( Utilities.PARAMETER_TO_DAY_MINUTE, request, searchParameters );
-        String strSolrDayMinuteFrom = "*";
-        if ( strFromDayMinute != null )
-        {
-            strSolrDayMinuteFrom = strFromDayMinute;
-        }
-        String strSolrDayMinuteTo = "*";
-        if ( strToDayMinute != null )
-        {
-            strSolrDayMinuteTo = strToDayMinute;
-        }
+        String strSolrDayMinuteFrom = StringUtils.isNumeric( strFromDayMinute ) ? strFromDayMinute : "*";
+        String strSolrDayMinuteTo = StringUtils.isNumeric( strToDayMinute ) ? strToDayMinute : "*";
         query.addFilterQuery( SOLR_FIELD_MINUTE_OF_DAY + ":[" + strSolrDayMinuteFrom + " TO " + strSolrDayMinuteTo + "]" );
 
         String strNbConsecutiveSlots = Utilities.getSearchParameterValue( Utilities.PARAMETER_NB_SLOTS, request, searchParameters );
-        int nbConsecutiveSlots = StringUtils.isNotEmpty( strNbConsecutiveSlots ) ? Integer.parseInt( strNbConsecutiveSlots ) : 1;
+        int nbConsecutiveSlots = Math.max( NumberUtils.toInt( strNbConsecutiveSlots, 1 ), 1 );
         query.addFilterQuery( SOLR_NB_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
         query.addFilterQuery( SOLR_MAX_CONSECUTIVES_SLOTS + ":[" + nbConsecutiveSlots + " TO *]" );
 
         String strRole = Utilities.getSearchParameterValue( Utilities.PARAMETER_ROLE, request, searchParameters );
         if ( StringUtils.isNotEmpty( strRole ) && !"none".equals( strRole ) )
         {
-            query.addFilterQuery( SOLR_ROLE + ":" + strRole );
+            query.addFilterQuery( SOLR_ROLE + ":" + ClientUtils.escapeQueryChars( strRole ) );
         }
         return query;
     }
