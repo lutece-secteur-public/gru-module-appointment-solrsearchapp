@@ -47,8 +47,6 @@
 
     <properties>
         <componentName>appointment-solrsearchapp</componentName>
-        <jiraProjectName>APPSOLRSEA</jiraProjectName>
-        <jiraComponentId>13452</jiraComponentId>
         <sonar.tests />
     </properties>
 

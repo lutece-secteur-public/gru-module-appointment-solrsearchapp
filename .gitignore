@@ -7,3 +7,4 @@
 /bin/
 /target_test-classes/
 /logs/
+java.io.tmpdir/
