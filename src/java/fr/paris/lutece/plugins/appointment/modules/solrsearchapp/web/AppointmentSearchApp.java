@@ -185,6 +185,7 @@ public class AppointmentSearchApp extends MVCApplication
         if ( solrServer == null )
         {
             AppLogService.error( "AppointmentSolr error, getSolrServer returns null" );
+            return getXPage( TEMPLATE_SEARCH, request.getLocale( ) );
         }
 
         SolrQuery basedQuery = SolrQueryService.getCommonFilteredQuery( request, _searchParameters, _searchMultiParameters );
@@ -436,13 +437,7 @@ public class AppointmentSearchApp extends MVCApplication
         }
 
         _searchMultiParameters.put( Utilities.PARAMETER_DAYS_OF_WEEK, request.getParameterValues( Utilities.PARAMETER_DAYS_OF_WEEK ) );
-        // Need to put the category in the url
-        LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<>( );
-        if ( StringUtils.isNotEmpty( request.getParameter( Utilities.PARAMETER_CATEGORY ) ) )
-        {
-            additionalParameters.put( Utilities.PARAMETER_CATEGORY, request.getParameter( Utilities.PARAMETER_CATEGORY ) );
-        }
-        return redirect( request, VIEW_SEARCH, additionalParameters );
+        return redirect( request, VIEW_SEARCH, categoryParameter( request ) );
     }
 
     /**
@@ -466,10 +461,25 @@ public class AppointmentSearchApp extends MVCApplication
         _searchParameters.put( Utilities.PARAMETER_NB_SLOTS, "1" );
         _searchParameters.put( Utilities.PARAMETER_ROLE, "none" );
 
-        // Need to put the category in the url
-        LinkedHashMap<String, String> additionalParameters = new LinkedHashMap<>( );
-        additionalParameters.put( Utilities.PARAMETER_CATEGORY, request.getParameter( Utilities.PARAMETER_CATEGORY ) );
-        return redirect( request, VIEW_SEARCH, additionalParameters );
+        return redirect( request, VIEW_SEARCH, categoryParameter( request ) );
+    }
+
+    /**
+     * The category of the request, carried over to the search view.
+     *
+     * @param request
+     *            the request
+     * @return the category parameter, empty when the request has none
+     */
+    private static Map<String, String> categoryParameter( HttpServletRequest request )
+    {
+        Map<String, String> parameters = new LinkedHashMap<>( );
+        String strCategory = request.getParameter( Utilities.PARAMETER_CATEGORY );
+        if ( StringUtils.isNotEmpty( strCategory ) )
+        {
+            parameters.put( Utilities.PARAMETER_CATEGORY, strCategory );
+        }
+        return parameters;
     }
 
     private HashMap<String, Integer> getPlacesCount( QueryResponse response, String strPivotName )
