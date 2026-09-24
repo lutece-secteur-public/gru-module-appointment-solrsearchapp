@@ -30,15 +30,15 @@ window.addEventListener('load', function () {
         }
     });
 
-    map = L.map('map').setView([48.85632, 2.33272], 12);
+    map = L.map(document.querySelector('#map .leaflet-appointment-search')).setView([48.85632, 2.33272], 12);
     var points = window.lutece_appointment_solrsearchapp_points;
     var freePlaces = window.lutece_appointment_solrsearchapp_freePlaces;
 
-    // create the tile layer with correct attribution
-    var esri_streets = L.esri.basemapLayer('Streets').addTo(map);
-    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-    var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 16, attribution: osmAttrib});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        minZoom: 8,
+        maxZoom: 16,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
 
     var markers = new L.LayerGroup();
 
@@ -72,24 +72,20 @@ window.addEventListener('load', function () {
                         return response.text();
                     })
                     .then(function(data) {
-                        console.log("data", data);
                         var parser = new DOMParser();
                         var doc = parser.parseFromString(data, 'text/html');
                         var temp = doc.body.firstChild;
 
                         var firstSlot = document.getElementById("link_" + point["id"] + "_first_slot");
-                        var fullCalendar = document.getElementById("link_" + point["id"] + "_full_calendar");
 
                         if (firstSlot) {
-                            temp.appendChild(firstSlot.cloneNode(true));
+                            var slotLink = firstSlot.cloneNode(true);
+                            slotLink.removeAttribute("id");
+                            var paragraph = document.createElement("p");
+                            paragraph.appendChild(slotLink);
+                            temp.appendChild(paragraph);
                         }
-                        if (fullCalendar) {
-                            temp.appendChild(fullCalendar.cloneNode(true));
-                        }
-
-                        console.log(temp.outerHTML);
                         var final_data = temp.outerHTML;
-                        console.log("final_data", final_data);
                         popup.setContent(final_data);
                         popup.update();
                     })
@@ -105,11 +101,4 @@ window.addEventListener('load', function () {
 
     map.addLayer(markers);
 
-  var baseMaps = {
-      "Esri Streets": esri_streets,
-      "OpenStreetMap": osm
-  };
-  var overlayMaps = { "rendez-vous": markers };
-  // paramétrage et ajout du L.control.layers à la carte
-  L.control.layers(baseMaps, overlayMaps).addTo(map);
 });

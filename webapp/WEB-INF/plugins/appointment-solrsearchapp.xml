@@ -33,7 +33,6 @@
         <javascript-files-scope>xpage</javascript-files-scope>
         <javascript-file>leaflet/leaflet/leaflet.js</javascript-file>
         <javascript-file>leaflet/leaflet/leaflet.markercluster.js</javascript-file>
-        <javascript-file>leaflet/esri/esri-leaflet.js</javascript-file>
         <javascript-file>appointment/modules/solrsearchapp/leaflet-appointmentsearch.js</javascript-file>
     </javascript-files>
 </plug-in>
