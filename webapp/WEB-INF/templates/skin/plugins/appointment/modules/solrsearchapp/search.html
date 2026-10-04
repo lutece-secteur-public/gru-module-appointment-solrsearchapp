@@ -136,7 +136,8 @@
                     <#if (results.values)??>
                         <#list results.values as groupcommand>
                             <#if groupcommand.values?size gt 0>
-                                <@cTitle level=3 id='rdv_liste'>#i18n{module.appointment.solrsearchapp.firstAvailableSlots}</@cTitle>
+                                <@cTitle level=3 id=rdvListeDone???then('', 'rdv_liste')>#i18n{module.appointment.solrsearchapp.firstAvailableSlots}</@cTitle>
+                                <#assign rdvListeDone = true>
                                 <div class="nextAvailableAppointments">
                                 <#list groupcommand.values as group>
                                     <#assign first = group.result.list[0]>
