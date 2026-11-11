@@ -15,10 +15,11 @@
     { "code":"1080", "name":"18h00"},
     { "code":"1260", "name":"21h00"}
     ]>
-<#assign categoryParam><#if category??>&amp;category=${category?url('UTF-8')}</#if></#assign>
-<#assign nbSlots = (nb_consecutive_slots!'1')?url('UTF-8')>
+<#assign categoryParam = ''>
+<#if category??><#assign categoryParam = '&category=' + category?url></#if>
+<#assign nbSlots = (nb_consecutive_slots!'1')?url>
 <#macro timeSelect name items value label>
-    <@cSelect name=name id=name params='aria-label="${label}"'>
+    <@cSelect name=name id=name params={"aria-label": label}>
         <#list items as item>
             <@cOption label=item.name value=item.code selected=(value == item.code) />
         </#list>
@@ -27,9 +28,9 @@
 <#macro quickSearch days label>
     <@cForm action='jsp/site/Portal.jsp' class='d-inline-block'>
         <@cInput type='hidden' name='page' id='quick_${days}_page' value='appointmentsearch' class='' />
-        <#if category??><@cInput type='hidden' name='category' id='quick_${days}_category' value=category?html class='' /></#if>
+        <#if category??><@cInput type='hidden' name='category' id='quick_${days}_category' value=category class='' /></#if>
         <@cInput type='hidden' name='to_date' id='quick_${days}_to_date' value=(.now?long + days * 86400000)?number_to_date?string('dd/MM/yyyy') class='' />
-        <@cBtn label=label type='submit' class='primary btn-sm' params='name="view_search"' />
+        <@cBtn label=label type='submit' class='primary btn-sm' params={"name": "view_search"} />
     </@cForm>
 </#macro>
 <div class="row">
@@ -79,21 +80,21 @@
                         <@quickSearch days=7 label='#i18n{module.appointment.solrsearchapp.sevenDays}' />
                         <@quickSearch days=14 label='#i18n{module.appointment.solrsearchapp.fourteenDays}' />
                     </div>
-                    <@cBtn label='#i18n{module.appointment.solrsearchapp.advancedSearch}' type='button' class='secondary btn-sm mb-3' id='advanced_search_button' nestedPos='after' params='aria-expanded="true" aria-controls="advanced_search"'><@cIcon name='settings' class='ms-1' /></@cBtn>
+                    <@cBtn label='#i18n{module.appointment.solrsearchapp.advancedSearch}' type='button' class='secondary btn-sm mb-3' id='advanced_search_button' nestedPos='after' params={"aria-expanded": "true", "aria-controls": "advanced_search"}><@cIcon name='settings' class='ms-1' /></@cBtn>
                     <@cForm name='search' action='jsp/site/Portal.jsp' id='advanced_search'>
                         <@cInput type='hidden' name='page' id='search_page' value='appointmentsearch' class='' />
-                        <#if category??><@cInput type='hidden' name='category' id='search_category' value=category?html class='' /></#if>
-                        <@cInput type='hidden' name='role' id='search_role' value=(role!'none')?html class='' />
+                        <#if category??><@cInput type='hidden' name='category' id='search_category' value=category class='' /></#if>
+                        <@cInput type='hidden' name='role' id='search_role' value=role!'none' class='' />
                         <@cFieldset legend='#i18n{module.appointment.solrsearchapp.dates}' class='mb-3'>
                             <div class="row mb-1 align-items-end">
                                 <div class="col-sm-6">
-                                    <@cInputDate name='from_date' id='from_date' label='#i18n{module.appointment.solrsearchapp.from}' value=(from_date!'')?html options={'format': 'dd/mm/yyyy', 'dataFormat': 'dd/mm/yyyy'} />
+                                    <@cInputDate name='from_date' id='from_date' label='#i18n{module.appointment.solrsearchapp.from}' value=from_date!'' options={'format': 'dd/mm/yyyy', 'dataFormat': 'dd/mm/yyyy'} />
                                 </div>
                                 <div class="col-sm-6"><@timeSelect name='from_time' items=items_time value=from_time!'' label='#i18n{module.appointment.solrsearchapp.from}' /></div>
                             </div>
                             <div class="row align-items-end">
                                 <div class="col-sm-6">
-                                    <@cInputDate name='to_date' id='to_date' label='#i18n{module.appointment.solrsearchapp.to}' value=(to_date!'')?html options={'format': 'dd/mm/yyyy', 'dataFormat': 'dd/mm/yyyy'} />
+                                    <@cInputDate name='to_date' id='to_date' label='#i18n{module.appointment.solrsearchapp.to}' value=to_date!'' options={'format': 'dd/mm/yyyy', 'dataFormat': 'dd/mm/yyyy'} />
                                 </div>
                                 <div class="col-sm-6"><@timeSelect name='to_time' items=items_time value=to_time!'' label='#i18n{module.appointment.solrsearchapp.to}' /></div>
                             </div>
@@ -108,7 +109,7 @@
                             <@cLabel for='nb_consecutive_slots' label='#i18n{module.appointment.solrsearchapp.form.nbSlots.label}' />
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <@cInput type='number' name='nb_consecutive_slots' id='nb_consecutive_slots' min=1 step=1 value=(nb_consecutive_slots!'1')?html />
+                                    <@cInput type='number' name='nb_consecutive_slots' id='nb_consecutive_slots' min=1 step=1 value=nb_consecutive_slots!'1' />
                                 </div>
                             </div>
                         </div>
@@ -125,8 +126,8 @@
                             </div>
                         </@cFieldset>
                         <div class="mb-3">
-                            <@cBtn label='#i18n{module.appointment.solrsearchapp.search}' type='submit' class='primary btn-sm' params='name="action_search"' />
-                            <@cBtn label='#i18n{module.appointment.solrsearchapp.reset}' type='submit' class='danger btn-sm' params='name="action_clear"' />
+                            <@cBtn label='#i18n{module.appointment.solrsearchapp.search}' type='submit' class='primary btn-sm' params={"name": "action_search"} />
+                            <@cBtn label='#i18n{module.appointment.solrsearchapp.reset}' type='submit' class='danger btn-sm' params={"name": "action_clear"} />
                         </div>
                     </@cForm>
                 </div>
@@ -141,21 +142,21 @@
                                 <div class="nextAvailableAppointments">
                                 <#list groupcommand.values as group>
                                     <#assign first = group.result.list[0]>
-                                    <#assign groupId = group.groupValue?html>
+                                    <#assign groupId = group.groupValue>
                                     <div>
-                                        <@cTitle level=4>${first.title?html}</@cTitle>
+                                        <@cTitle level=4>${first.title}</@cTitle>
                                         <#if (first.appointmentslot_address_text)??>
-                                            <p>${first.appointmentslot_address_text?html}</p>
+                                            <p>${first.appointmentslot_address_text}</p>
                                         </#if>
                                         <p class="emphasize_default">#i18n{module.appointment.solrsearchapp.nextAvailableSlots} :</p>
                                         <ul>
                                         <#list group.result.list as slot>
                                             <#assign slotDate = slot.date?datetime?string['dd MMMM yyyy HH:mm']>
-                                            <li><a title="${slotDate}" href="${slot.url?html}&amp;nbPlacesToTake=${nbSlots}"<#if slot?is_first> id="link_${groupId}_first_slot"</#if>>${slotDate}</a></li>
+                                            <li><a title="${slotDate}" href="${safeUrl(slot.url + '&nbPlacesToTake=' + nbSlots)}"<#if slot?is_first> id="link_${groupId}_first_slot"</#if>>${slotDate}</a></li>
                                         </#list>
                                         </ul>
                                         <p>${group.result.numFound - group.result.list?size} #i18n{module.appointment.solrsearchapp.otherAvailableSchedules}</p>
-                                        <@cBtn label='#i18n{module.appointment.solrsearchapp.completeSchedule}' class='primary btn-sm' id='link_${groupId}_full_calendar' href='${first.url_form_string?html}&amp;nbPlacesToTake=${nbSlots}' />
+                                        <@cBtn label='#i18n{module.appointment.solrsearchapp.completeSchedule}' class='primary btn-sm' id='link_${groupId}_full_calendar' href=safeUrl(first.url_form_string + '&nbPlacesToTake=' + nbSlots) />
                                     </div>
                                 </#list>
                                 </div>
@@ -167,38 +168,20 @@
         </div>
     </div>
 </div>
+<#-- The points of the map, read by leaflet-appointmentsearch.js -->
+<div id="appointment-search-points" hidden>
+<#if (results.values)??>
+<#list results.values as groupcommand>
+<#list groupcommand.values as group>
+<#assign first = group.result.list[0]>
+<#if (first.appointmentslot_geojson)??>
+    <span data-id="${first.uid_form_string}" data-url-base="${first.url_base_string}" data-geojson="${first.appointmentslot_geojson}" data-free="${freePlacesCount[group.groupValue]?c}" data-total="${totalPlacesCount[group.groupValue]?c}"></span>
+</#if>
+</#list>
+</#list>
+</#if>
+</div>
 <script>
-    <#assign comma=false>
-    window.lutece_appointment_solrsearchapp_points = [
-        <#if (results.values)??>
-        <#list results.values as groupcommand>
-        <#list groupcommand.values as group>
-        <#if (group.result.list[0].appointmentslot_geojson)??>
-        <#if comma>,<#else><#assign comma=true></#if>
-        {
-            "type": "appointment",
-            "code": "appointment",
-            "url_base": "${group.result.list[0].url_base_string?json_string}",
-            "id": "${group.result.list[0].uid_form_string?json_string}",
-            "geojson": ${group.result.list[0].appointmentslot_geojson}
-        }
-        </#if>
-        </#list>
-        </#list>
-        </#if>
-    ];
-    window.lutece_appointment_solrsearchapp_freePlaces = {
-        <#if (results.values)??>
-        <#list results.values as groupcommand>
-        <#list groupcommand.values as group>
-        "${group.groupValue?json_string}": {
-            "free": ${freePlacesCount[group.groupValue]},
-            "total": ${totalPlacesCount[group.groupValue]}
-        }<#if group_has_next>,</#if>
-        </#list>
-        </#list>
-        </#if>
-    };
     document.addEventListener("DOMContentLoaded", function() {
         const mapCol = document.getElementById("map_col");
         const searchForm = document.getElementById("searchForm");
@@ -224,7 +207,7 @@
             const cartoMessage = document.getElementById("cartomessage");
             const messageCarto = document.getElementById("message-carto");
             if (cartoMessage && messageCarto) {
-                messageCarto.innerHTML = cartoMessage.innerHTML;
+                messageCarto.replaceChildren( ...Array.from( cartoMessage.childNodes, function( node ) { return node.cloneNode( true ); } ) );
             }
             if (searchForm.style.display === "none") {
                 searchForm.style.display = "";
