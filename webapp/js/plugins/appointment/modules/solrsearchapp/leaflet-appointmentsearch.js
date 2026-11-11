@@ -17,7 +17,7 @@ window.addEventListener('load', function () {
             var img = this._createImg(this.options['iconUrl']);
             var numdiv = document.createElement('div');
             numdiv.setAttribute ( "class", "number" );
-            numdiv.innerHTML = this.options['number'] || '';
+            numdiv.textContent = this.options['number'] || '';
             div.appendChild ( img );
             div.appendChild ( numdiv );
             this._setIconStyles(div, 'icon');
@@ -31,8 +31,7 @@ window.addEventListener('load', function () {
     });
 
     map = L.map(document.querySelector('#map .leaflet-appointment-search')).setView([48.85632, 2.33272], 12);
-    var points = window.lutece_appointment_solrsearchapp_points;
-    var freePlaces = window.lutece_appointment_solrsearchapp_freePlaces;
+    var points = readPoints();
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 8,
@@ -44,8 +43,8 @@ window.addEventListener('load', function () {
 
     for (var i = 0; i < points.length; i++) {
 
-        var nbFreePlaces = freePlaces[points[i]["id"]]["free"];
-        var nbTotalPlaces = freePlaces[points[i]["id"]]["total"];
+        var nbFreePlaces = points[i]["free"];
+        var nbTotalPlaces = points[i]["total"];
 		var ratioPlaces = nbFreePlaces / nbTotalPlaces ;
 		var color = "";
 		if ( ratioPlaces < 0.1 ) {
@@ -58,7 +57,7 @@ window.addEventListener('load', function () {
                 points[i]["geojson"]["geometry"]["coordinates"][0]
             ], {icon: new L.NumberedDivIcon({number: nbFreePlaces,  iconUrl: L.Icon.Default.imagePath + '/marker_hole' + color + '.png'})});
 
-        var popupContent = "<p>Loading " + points[i]["type"] + " " + points[i]["id"] + " " + points[i]["code"] + "...</p>";
+        var popupContent = textParagraph("Loading " + points[i]["type"] + " " + points[i]["id"] + " " + points[i]["code"] + "...");
         marker.bindPopup(popupContent)
         marker.on('click', (function(point) {
             return function(e) {
@@ -85,12 +84,14 @@ window.addEventListener('load', function () {
                             paragraph.appendChild(slotLink);
                             temp.appendChild(paragraph);
                         }
-                        var final_data = temp.outerHTML;
-                        popup.setContent(final_data);
+                        popup.setContent(temp);
                         popup.update();
                     })
                     .catch(function() {
-                        popup.setContent("<p>Resource unavailable</p><p>" + point["url_base"] + "</p>");
+                        var content = document.createElement("div");
+                        content.appendChild(textParagraph("Resource unavailable"));
+                        content.appendChild(textParagraph(point["url_base"]));
+                        popup.setContent(content);
                         popup.update();
                     });
             };
@@ -100,5 +101,36 @@ window.addEventListener('load', function () {
     }
 
     map.addLayer(markers);
+
+    // The points are written by search.html in the data attributes of #appointment-search-points
+    function readPoints() {
+        var list = [];
+        var container = document.getElementById("appointment-search-points");
+        if (!container) {
+            return list;
+        }
+        container.querySelectorAll("span[data-id]").forEach(function (element) {
+            try {
+                list.push({
+                    "type": "appointment",
+                    "code": "appointment",
+                    "url_base": element.dataset.urlBase,
+                    "id": element.dataset.id,
+                    "geojson": JSON.parse(element.dataset.geojson),
+                    "free": Number(element.dataset.free),
+                    "total": Number(element.dataset.total)
+                });
+            } catch (e) {
+                // a point whose geojson cannot be read is not shown
+            }
+        });
+        return list;
+    }
+
+    function textParagraph(text) {
+        var paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        return paragraph;
+    }
 
 });
