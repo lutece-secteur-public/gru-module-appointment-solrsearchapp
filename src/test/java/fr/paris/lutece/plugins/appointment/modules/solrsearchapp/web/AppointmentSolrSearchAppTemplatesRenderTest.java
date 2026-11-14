@@ -225,4 +225,24 @@ public class AppointmentSolrSearchAppTemplatesRenderTest
         assertTrue( strHtml.contains( "data-free=\"1234\" data-total=\"5678\"" ), strHtml );
         assertFalse( strHtml.contains( "lutece_appointment_solrsearchapp_points" ), strHtml );
     }
+
+    /**
+     * The map is a region named by the map label, and a link before it lets keyboard users skip it and reach the list of
+     * the first available slots.
+     *
+     * @throws Exception
+     *             if the rendering fails
+     */
+    @Test
+    public void testMapIsNamedAndCanBeSkipped( ) throws Exception
+    {
+        String strHtml = render( TEMPLATE_SEARCH, model( "jsp/site/Portal.jsp" ) );
+
+        assertTrue( strHtml.contains( "<div class=\"leaflet-appointment-search\" role=\"region\" aria-label=\"#i18n{module.appointment.solrsearchapp.map}\"" ),
+                strHtml );
+        int nSkipLink = strHtml.indexOf( "<a class=\"visually-hidden-focusable\" href=\"#appointment-search-results\">#i18n{module.appointment.solrsearchapp.skipMap}</a>" );
+        assertTrue( nSkipLink >= 0, strHtml );
+        assertTrue( nSkipLink < strHtml.indexOf( "class=\"leaflet-appointment-search\"" ), strHtml );
+        assertTrue( strHtml.contains( "id=\"appointment-search-results\"" ), strHtml );
+    }
 }
