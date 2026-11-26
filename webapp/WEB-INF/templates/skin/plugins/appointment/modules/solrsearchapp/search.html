@@ -38,10 +38,10 @@
         <div class="container">
             <div class="row">
                 <#list (errors![]) as error>
-                    <@cAlert type='danger' title=error.message />
+                    <@cAlert type='danger' title=(error?is_hash)?then(error.message!'', error) />
                 </#list>
                 <#list (infos![]) as info>
-                    <@cAlert type='info' title=info.message />
+                    <@cAlert type='info' title=(info?is_hash)?then(info.message!'', info) />
                 </#list>
                 <div class="col-12">
                     <div class="formGroupContainer messageContainer" id="message-carto"></div>
